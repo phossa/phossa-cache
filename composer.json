@@ -1,0 +1,25 @@
+{
+    "name": "phossa/phossa-cache",
+    "version": "1.0.0",
+    "license": "MIT",
+    "type": "library",
+    "description": "The caching package of Phossa framework",
+    "keywords": ["phossa", "framework", "cache"],
+    "homepage": "https://github.com/phossa/phossa-cache",
+    "authors": [
+        {
+            "name": "Hong Zhang",
+            "homepage": "https://github.com/phossa"
+        }
+    ],
+    "autoload": {
+        "psr-0": { "Phossa\\Cache\\": "src/" }
+    },
+    "require": {
+        "php": ">=5.4.0",
+        "phossa-shared": "~1.*"
+    },
+    "archive": {
+        "exclude": ["!vendor", "tests", "*phpunit.xml",  "composer.lock"]
+    }
+}
