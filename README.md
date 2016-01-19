@@ -1,7 +1,10 @@
 # Introduction
-Phossa is a lightweight PHP framework. Phossa-cache is caching package.
+
+Phossa-cache is psr-6 compliant caching package.
 
 # Features
+
+- PSR-6 compliant
 
 - Support PHP 5.4+
 
