@@ -18,17 +18,14 @@ use Phossa\Cache\Extension\ExtensionStage as ES;
  *
  * @package \Phossa\Cache
  * @author  Hong Zhang <phossa@126.com>
- * @see     \Psr\Cache\CacheItemPoolInterface
- * @see     \Phossa\Cache\CacheItemInterface
- * @see     \Phossa\Cache\Misc\ErrorAwareInterface
- * @see     \Phossa\Cache\Driver\DriverAwareInterface
- * @see     \Phossa\Cache\Extension\ExtensionAwareInterface
+ * @see     \Phossa\Cache\CachePoolInterface
  * @version 1.0.0
  * @since   1.0.0 added
  */
 class CachePool implements CachePoolInterface
 {
-    use Driver\DriverAwareTrait,
+    use Misc\LoggerAwareTrait,
+        Driver\DriverAwareTrait,
         Extension\ExtensionAwareTrait;
 
     /**
@@ -60,7 +57,7 @@ class CachePool implements CachePoolInterface
      * @access protected
      */
     protected $default_ext = [
-        ['className' => '\Phossa\Cache\Extension\SerializeExtension']
+        ['className' => 'SerializeExtension']
     ];
 
     /**
@@ -211,8 +208,9 @@ class CachePool implements CachePoolInterface
     /**
      * {@inheritDoc}
      */
-    public function save(CacheItemInterface $item)/*# : bool */
-    {
+    public function save(
+        \Psr\Cache\CacheItemInterface $item
+    )/*# : bool */ {
         // extension may change $item
         $clone = clone $item;
 
@@ -236,8 +234,9 @@ class CachePool implements CachePoolInterface
     /**
      * {@inheritDoc}
      */
-    public function saveDeferred(CacheItemInterface $item)/*# : bool */
-    {
+    public function saveDeferred(
+        \Psr\Cache\CacheItemInterface $item
+    )/*# : bool */ {
         // extensions may change $item
         $clone = clone $item;
 

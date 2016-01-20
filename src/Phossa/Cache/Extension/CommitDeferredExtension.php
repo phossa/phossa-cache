@@ -59,6 +59,7 @@ class CommitDeferredExtension extends ExtensionAbstract
         CacheItemInterface $item = null
     )/*# : bool */ {
         if (rand(1, $this->divisor) <= $this->probability) {
+            $cache->log('notice', 'commit deferred in extension');
             $cache->getDriver()->commit();
         }
         return true;

@@ -69,6 +69,7 @@ class GarbageCollectExtension extends ExtensionAbstract
             $cache->getDriver()->purge(
                 $this->max_lifetime
             );
+            $cache->log('info', 'garbage collection');
         }
         return true;
     }

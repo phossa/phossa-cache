@@ -20,6 +20,7 @@ use Psr\Cache\CacheItemPoolInterface;
  * @author  Hong Zhang <phossa@126.com>
  * @see     \Psr\Cache\CacheItemPoolInterface
  * @see     \Phossa\Cache\Misc\ErrorAwareInterface
+ * @see     \Phossa\Cache\Misc\LoggerAwareInterface
  * @see     \Phossa\Cache\Driver\DriverAwareInterface
  * @see     \Phossa\Cache\Extension\ExtensionAwareInterface
  * @version 1.0.0
@@ -28,6 +29,7 @@ use Psr\Cache\CacheItemPoolInterface;
 interface CachePoolInterface extends
     CacheItemPoolInterface,
     Misc\ErrorAwareInterface,
+    Misc\LoggerAwareInterface,
     Driver\DriverAwareInterface,
     Extension\ExtensionAwareInterface
 {

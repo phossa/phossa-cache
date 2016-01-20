@@ -10,6 +10,8 @@
 
 namespace Phossa\Cache\Driver;
 
+use Phossa\Cache\CacheItemInterface;
+
 /**
  * CompositeDriver
  *

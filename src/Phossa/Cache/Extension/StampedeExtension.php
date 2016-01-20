@@ -76,6 +76,7 @@ class StampedeExtension extends ExtensionAbstract
             ) {
                 // mark it as no hit
                 $item->setHit(false);
+                $cache->log('notice', 'stampede triggered');
             }
         }
         return true;

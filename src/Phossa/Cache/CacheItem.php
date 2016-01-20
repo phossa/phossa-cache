@@ -65,12 +65,12 @@ class CacheItem implements CacheItemInterface
     protected $value;
 
     /**
-     * default expiration time in seconds
+     * default expiration time in seconds, max is 0x7fffffff
      *
      * @var    int
      * @access protected
      */
-    protected $expire = 0x7fffffff;
+    protected $expire = 0;
 
     /**
      * default TTL in seconds
@@ -78,7 +78,7 @@ class CacheItem implements CacheItemInterface
      * @var    int
      * @access protected
      */
-    protected $ttl    = 3600;
+    protected $ttl    = 28800;
 
     /**
      * Constructor
@@ -93,18 +93,18 @@ class CacheItem implements CacheItemInterface
         CachePoolInterface $cache,
         array $settings = []
     ) {
-        // set key
-        $this->key    = $key;
-
-        // set cache
-        $this->cache  = $cache;
-
         // set configs
         if ($settings) {
             foreach($settings as $k => $v) {
                 if (isset($this->$k)) $this->$k = $v;
             }
         }
+
+        // set key
+        $this->key    = $key;
+
+        // set cache
+        $this->cache  = $cache;
     }
 
     /**
@@ -178,8 +178,15 @@ class CacheItem implements CacheItemInterface
      */
     public function set($value)/*# : CacheItemInterface */
     {
+        // mark it gettable
         $this->done  = true;
+
+        // set value
         $this->value = $value;
+
+        // set default expire
+        if ($this->expire === 0) $this->expiresAfter($this->ttl);
+
         return $this;
     }
 

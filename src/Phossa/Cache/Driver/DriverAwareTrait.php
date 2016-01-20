@@ -28,7 +28,7 @@ trait DriverAwareTrait
     /**
      * cache driver
      *
-     * @var    DriverInterface
+     * @var    DriverAbstract
      * @access protected
      */
     protected $driver;
@@ -36,24 +36,46 @@ trait DriverAwareTrait
     /**
      * {@inheritDoc}
      */
-    public function setDriver($configs)
+    public function setDriver($configs, $fallback = true)
     {
         try {
             $this->driver = null;
-            if (is_array($configs) &&
-                isset($configs['className']) &&
-                is_a($configs['className'],
-                    '\Phossa\Cache\Driver\DriverAbstract',
-                    true)
-            ) {
+            if (is_array($configs) && isset($configs['className'])) {
                 $class = $configs['className'];
-                $this->driver = new $class($configs);
+                // append namespace if missing
+                if (strpos($class, '\\') === false) {
+                    $class = __NAMESPACE__ . '\\' . $class;
+                }
+                if (is_a($class, '\Phossa\Cache\Driver\DriverAbstract', true)) {
+                    $this->driver = new $class($configs);
+                }
             } else if ($configs instanceof DriverInterface) {
                 $this->driver = $configs;
             }
 
             if (is_null($this->driver)) {
                 throw new \Exception(gettype($configs));
+            }
+
+            // driver error
+            if ($this->driver->getErrorCode()) {
+                if ($fallback) {
+                    // fallback to user-defined driver
+                    if (isset($configs['fallback'])) {
+                        $this->setDriver($configs['fallback']);
+
+                    // fallback to NullDriver
+                    } else {
+                        $this->setDriver(new NullDriver());
+                    }
+                } else {
+                    throw new \Exception(
+                        Message::get(
+                            Message::CACHE_FAIL_DRIVER,
+                            gettype($this->driver)
+                        )
+                    );
+                }
             }
         } catch (\Exception $e) {
             throw new InvalidArgumentException(
@@ -66,7 +88,7 @@ trait DriverAwareTrait
     /**
      * {@inheritDoc}
      */
-    public function getDriver()/*# : DriverInterface */
+    public function getDriver()/*# : DriverAbstract */
     {
         return $this->driver;
     }

@@ -72,6 +72,10 @@ class Message extends MessageAbstract
      */
     const CACHE_FAIL_WRITEFILE  = 1512220915;
 
+    /**
+     * Driver "%s" failed, fallback to Null
+     */
+    const CACHE_FAIL_DRIVER     = 1512220916;
     /**#@-*/
     /**
      * {@inheritdoc}
@@ -86,5 +90,6 @@ class Message extends MessageAbstract
         self::CACHE_FAIL_DELETE     => 'Delete "%s" failed',
         self::CACHE_FAIL_MKDIR      => 'Mkdir "%s" failed',
         self::CACHE_FAIL_WRITEFILE  => 'Fwrite "%s" failed',
+        self::CACHE_FAIL_DRIVER     => 'Driver "%s" failed, fallback to Null',
     ];
 }

@@ -72,9 +72,16 @@ class FilesystemDriver extends DriverAbstract
         }
 
         // clean up
-        $this->dir_root = realpath(
-            rtrim($this->dir_root, " \t\r\n\0\x0B\\/")
-        );
+        $this->dir_root = rtrim($this->dir_root, " \t\r\n\0\x0B\\/");
+
+        // error in root dir
+        if (!is_dir($this->dir_root) && !mkdir($this->dir_root, 0777, true)) {
+            // set error
+            $this->falseAndSetError(
+                Message::get(Message::CACHE_FAIL_MKDIR, $this->dir_root),
+                Message::CACHE_FAIL_MKDIR
+            );
+        }
     }
 
     /**
@@ -115,7 +122,7 @@ class FilesystemDriver extends DriverAbstract
         $file = $this->getPath($key);
 
         // directory
-        if (is_dir($file)) return $this->deleteFromDir($file);
+        if (is_dir($file)) return $this->deleteFromDir($file, 0, true);
 
         // file
         if (file_exists($file) && !unlink($file)) {
@@ -194,7 +201,7 @@ class FilesystemDriver extends DriverAbstract
     public function purge(
         /*# int */ $maxlife
     )/*# : bool */ {
-        return $this->deleteFromDir($this->dir_root, $maxlife);
+        return $this->deleteFromDir($this->dir_root, $maxlife, false);
     }
 
     /**
@@ -208,7 +215,7 @@ class FilesystemDriver extends DriverAbstract
      */
     protected function getPath(/*# string */ $key)/*# : string */
     {
-        if (($pos = strpos($key, DIRECTORY_SEPARATOR)) !== false) {
+        if (($pos = strrpos($key, '/')) !== false) {
             $dir  = $this->dir_root . DIRECTORY_SEPARATOR .
                     substr($key, 0, $pos) . DIRECTORY_SEPARATOR;
             $key  = substr($key, $pos + 1);
@@ -238,7 +245,7 @@ class FilesystemDriver extends DriverAbstract
         // hash
         $pref = '';
         for($i = 0; $i < $this->hash_level; $i++) {
-            $pref = $md5[$i] . '/';
+            $pref .= $md5[$i] . '/';
         }
         return $pref . $hash;
     }
@@ -248,12 +255,14 @@ class FilesystemDriver extends DriverAbstract
      *
      * @param  string $dir directory
      * @param  int $maxlife delete those older than $maxlife seconds
+     * @param  bool $removeDir remove the directory also
      * @return bool
      * @access protected
      */
     protected function deleteFromDir(
         /*# string */ $dir,
-        /*# int */ $maxlife = 0
+        /*# int */ $maxlife = 0,
+        /*# bool */ $removeDir = false
     )/*# : bool */ {
         $now = time();
         if (is_dir($dir)) {
@@ -263,7 +272,7 @@ class FilesystemDriver extends DriverAbstract
                 $sub = $dir . DIRECTORY_SEPARATOR . $file;
                 $res = true;
                 if (is_dir($sub)) {
-                    $res = $this->deleteFromDir($sub);
+                    $res = $this->deleteFromDir($sub, $maxlife, true);
                 } else {
                     if (!$maxlife || $now - filectime($sub) > $maxlife) {
                         $res = unlink($sub);
@@ -276,6 +285,7 @@ class FilesystemDriver extends DriverAbstract
                     );
                 }
             }
+            if ($removeDir) @rmdir($dir);
         }
         return true;
     }

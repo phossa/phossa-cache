@@ -11,6 +11,7 @@
 namespace Phossa\Cache\Extension;
 
 use Phossa\Cache\Message\Message;
+use Phossa\Cache\Exception;
 
 /**
  * Implementation of ExtensionAwareInterface
@@ -25,7 +26,7 @@ use Phossa\Cache\Message\Message;
 trait ExtensionAwareTrait
 {
     use \Phossa\Cache\Misc\ErrorAwareTrait;
-    
+
     /**
      * extensions
      *
@@ -49,6 +50,14 @@ trait ExtensionAwareTrait
      * @access protected
      */
     protected $methods      = [];
+
+    /**
+     * loaded extensions
+     *
+     * @var    array
+     * @access protected
+     */
+    protected $loaded       = [];
 
     /**
      * call extension methods if any
@@ -78,19 +87,27 @@ trait ExtensionAwareTrait
      */
     public function setExtensions(array $extensions)
     {
+        // reset sorted array
+        $this->sorted = [];
+
         foreach($extensions as $ext) {
             // construct extension on the fly
-            if (is_array($ext) &&
-                isset($ext['className']) &&
-                is_a($ext['className'],
-                    '\Phossa\Cache\Extension\ExtensionAbstract' ,
-                    true)
-            ) {
+            if (is_array($ext) && isset($ext['className'])) {
                 $class = $ext['className'];
-                $ext = new $class($ext);
+                // append namespace if missing
+                if (strpos($class, '\\') === false) {
+                    $class = __NAMESPACE__ . '\\' . $class;
+                }
+                if (is_a(
+                    $class,
+                    '\Phossa\Cache\Extension\ExtensionAbstract',
+                    true
+                )) $ext = new $class($ext);
             }
 
-            if ($ext instanceof ExtensionInterface) {
+            if ($ext instanceof ExtensionInterface &&
+                !isset($this->loaded[get_class($ext)])) {
+
                 // stages handling
                 $handles = $ext->stagesHandling();
                 foreach($handles as $stage => $priority) {
@@ -115,11 +132,13 @@ trait ExtensionAwareTrait
                     }
                 }
 
+                $this->loaded[get_class($ext)] = true;
             } else {
                 throw new Exception\InvalidArgumentException(
                     Message::get(
                         Message::CACHE_INVALID_EXT,
-                        is_object($ext) ? get_class($ext) : (string) $ext
+                        is_object($ext) ? get_class($ext) :
+                            var_export($ext, true)
                     ),
                     Message::CACHE_INVALID_EXT
                 );
