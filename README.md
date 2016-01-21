@@ -11,7 +11,7 @@ More information about [PSR-6](http://www.php-fig.org/psr/psr-6/) and
 Install via the `composer` utility.
 
 ```
-composer require "phossa/cache=1.*"
+composer require "phossa/phossa-cache=1.*"
 ```
 
 # Features
@@ -22,6 +22,8 @@ composer require "phossa/cache=1.*"
 - Support PHP 5.4+.
 
 - PHP7 ready for return type declarations and argument type declarations.
+
+- Support all serializable PHP datatypes.
 
 - **Extensions**:
 
@@ -214,6 +216,18 @@ composer require "phossa/cache=1.*"
     ]);
     ```
 
+- Hierarchal cache support
+
+  Directory-style hierarchal structure is supported in `FilesystemDriver` and
+  so other coming drivers.
+
+    ```php
+    // hierarchy key
+    $item = $cache->getItem('mydomain/host1/newfile_xxx');
+
+    // ending '/' means delete the hierarchy structure
+    $cache->deleteItem('mydomain/host1/');
+    ```
 # Version
 1.0.0
 
