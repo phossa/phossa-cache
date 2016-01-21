@@ -15,9 +15,7 @@ use Phossa\Cache\CacheItemInterface;
 use Phossa\Cache\Message\Message;
 
 /**
- * SerializeExtension
- *
- * Serialize before save, and unserialize after get
+ * A simple encryption extension.
  *
  * @package \Phossa\Cache
  * @author  Hong Zhang <phossa@126.com>
@@ -25,16 +23,32 @@ use Phossa\Cache\Message\Message;
  * @version 1.0.0
  * @since   1.0.0 added
  */
-class SerializeExtension extends ExtensionAbstract
+class EncryptExtension extends ExtensionAbstract
 {
+    /**
+     * encrypt callable
+     *
+     * @var    callable
+     * @access protected
+     */
+    protected $encrypt = 'base64_encode';
+
+    /**
+     * decrypt callable
+     *
+     * @var    callable
+     * @access protected
+     */
+    protected $decrypt = 'base64_decode';
+
     /**
      * {@inheritDoc}
      */
     public function stagesHandling()/*# : array */
     {
-        return [ ExtensionStage::STAGE_POST_GET     => 50,
-                 ExtensionStage::STAGE_PRE_SAVE     => 50,
-                 ExtensionStage::STAGE_PRE_DEFER    => 50
+        return [ ExtensionStage::STAGE_POST_GET     => 40,
+                 ExtensionStage::STAGE_PRE_SAVE     => 60,
+                 ExtensionStage::STAGE_PRE_DEFER    => 60
         ];
     }
 
@@ -47,18 +61,22 @@ class SerializeExtension extends ExtensionAbstract
         CacheItemInterface $item = null
     )/*# : bool */ {
         if ($stage === ExtensionStage::STAGE_POST_GET) {
-            if ($item->isHit()) $res = @unserialize($item->get());
+            if ($item->isHit()) {
+                $fnc = $this->decrypt;
+                $res = $fnc($item->get());
+            }
         } else {
-            $res = @serialize($item->get());
+            $fnc = $this->encrypt;
+            $res = $fnc($item->get());
         }
 
         if (isset($res)) {
             if ($res === false) {
                 return $this->falseAndSetError(
                     Message::get(
-                        Message::CACHE_FAIL_SERIALIZE, $item->getKey()
+                        Message::CACHE_FAIL_ENCRYPT, $item->getKey()
                     ),
-                    Message::CACHE_FAIL_SERIALIZE
+                    Message::CACHE_FAIL_ENCRYPT
                 );
             }
             $item->set($res);

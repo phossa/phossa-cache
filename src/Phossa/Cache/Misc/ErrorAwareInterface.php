@@ -22,6 +22,16 @@ namespace Phossa\Cache\Misc;
 interface ErrorAwareInterface
 {
     /**
+     * Error happened?
+     *
+     * @param  void
+     * @return bool
+     * @access public
+     * @api
+     */
+    public function hasError()/*# : bool */;
+    
+    /**
      * Get current error message. '' for no error
      *
      * @param  void

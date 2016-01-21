@@ -235,10 +235,42 @@ class CachePoolTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers Phossa\Cache\CachePool::runExtensions
+     */
+    public function testRunExtensions2()
+    {
+        $cache = $this->object;
+        // test encrypt extension
+        $cache->setExtensions([
+            [ 'className' => 'EncryptExtension' ],
+        ]);
+
+        $key = 'testEncrypt';
+
+        // save item
+        $item = $cache->getItem($key);
+        $item->set('wow');
+        $cache->save($item);
+
+        // try get
+        $item2 = $cache->getItem($key);
+        $this->assertEquals('wow', $item2->get());
+
+        // clear extensions
+        $cache->clearExtensions();
+
+        // failed to get
+        $item3 = $cache->getItem($key);
+        $this->assertFalse($cache->hasError());
+        $item3->get();
+        $this->assertTrue($cache->hasError());
+    }
+
+    /**
      * @covers Phossa\Cache\CachePool::__call
      */
     public function testCall()
     {
-        
+
     }
 }

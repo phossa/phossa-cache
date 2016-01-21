@@ -36,9 +36,9 @@ interface CacheItemInterface extends \Psr\Cache\CacheItemInterface
      * Set hit status explicitly
      *
      * @param  bool $status hit status
-     * @return void
+     * @return bool current hit status
      * @access public
      * @api
      */
-    public function setHit(/*# bool */ $status);
+    public function setHit(/*# bool */ $status)/*# : bool */;
 }

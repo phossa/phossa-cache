@@ -76,7 +76,14 @@ class Message extends MessageAbstract
      * Driver "%s" failed, fallback to Null
      */
     const CACHE_FAIL_DRIVER     = 1512220916;
+
+    /**
+     * Encrypt/decrypt failed for key "%s"
+     */
+    const CACHE_FAIL_ENCRYPT    = 1512220917;
+
     /**#@-*/
+
     /**
      * {@inheritdoc}
      */
@@ -91,5 +98,6 @@ class Message extends MessageAbstract
         self::CACHE_FAIL_MKDIR      => 'Mkdir "%s" failed',
         self::CACHE_FAIL_WRITEFILE  => 'Fwrite "%s" failed',
         self::CACHE_FAIL_DRIVER     => 'Driver "%s" failed, fallback to Null',
+        self::CACHE_FAIL_ENCRYPT    => 'Encrypt/decrypt failed for key "%s"',
     ];
 }

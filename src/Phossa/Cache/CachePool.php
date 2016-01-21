@@ -51,16 +51,6 @@ class CachePool implements CachePoolInterface
     protected $item_config = [];
 
     /**
-     * default extensions
-     *
-     * @var    array
-     * @access protected
-     */
-    protected $default_ext = [
-        ['className' => 'SerializeExtension']
-    ];
-
-    /**
      * Cache pool constructor
      *
      * @param  array|Driver\DriverInterface $driver driver or driver settings
@@ -87,10 +77,10 @@ class CachePool implements CachePoolInterface
         // set driver
         $this->setDriver($driver);
 
-        // load default extensions
-        $this->setExtensions($this->default_ext);
+        // clear & load default extensions
+        $this->clearExtensions();
 
-        // load user-defined extensions
+        // load exteneral extensions
         if ($extensions) $this->setExtensions($extensions);
 
         // run extensions STAGE_INIT
@@ -155,17 +145,17 @@ class CachePool implements CachePoolInterface
         if (!$this->runExtensions(ES::STAGE_PRE_CLEAR)) return false;
 
         // clear the pool
-        if (!($res = $this->driver->clear())) {
-            $this->setError(
+        if (!$this->driver->clear()) {
+            return $this->falseAndSetError(
                 $this->driver->getError(),
                 $this->driver->getErrorCode()
             );
         }
 
         // after clear
-        $this->runExtensions(ES::STAGE_POST_CLEAR);
+        if (!$this->runExtensions(ES::STAGE_POST_CLEAR)) return false;
 
-        return $res;
+        return true;
     }
 
     /**
@@ -180,18 +170,17 @@ class CachePool implements CachePoolInterface
         if (!$this->runExtensions(ES::STAGE_PRE_DEL, $item)) return false;
 
         // delete from pool
-        $res = $this->driver->delete($item->getKey());
-        if (!$res) {
-            $this->setError(
+        if (!$this->driver->delete($item->getKey())) {
+            return $this->falseAndSetError(
                 $this->driver->getError(),
                 $this->driver->getErrorCode()
             );
         }
 
         // after delete
-        $this->runExtensions(ES::STAGE_POST_DEL, $item);
+        if (!$this->runExtensions(ES::STAGE_POST_DEL, $item)) return false;
 
-        return $res;
+        return true;
     }
 
     /**
@@ -218,17 +207,17 @@ class CachePool implements CachePoolInterface
         if (!$this->runExtensions(ES::STAGE_PRE_SAVE, $clone)) return false;
 
         // write to the pool
-        if (!($res = $this->driver->save($clone))) {
-            $this->setError(
+        if (!$this->driver->save($clone)) {
+            return $this->falseAndSetError(
                 $this->driver->getError(),
                 $this->driver->getErrorCode()
             );
         }
 
         // after save
-        $this->runExtensions(ES::STAGE_POST_SAVE, $clone);
+        if (!$this->runExtensions(ES::STAGE_POST_SAVE, $clone)) return false;
 
-        return $res;
+        return true;
     }
 
     /**
@@ -244,17 +233,17 @@ class CachePool implements CachePoolInterface
         if (!$this->runExtensions(ES::STAGE_PRE_DEFER, $clone)) return false;
 
         // write to the pool
-        if (!($res = $this->driver->saveDeferred($clone))) {
-            $this->setError(
+        if (!$this->driver->saveDeferred($clone)) {
+            return $this->falseAndSetError(
                 $this->driver->getError(),
                 $this->driver->getErrorCode()
             );
         }
 
         // after deferred
-        $this->runExtensions(ES::STAGE_POST_DEFER, $clone);
+        if (!$this->runExtensions(ES::STAGE_POST_DEFER, $clone)) return false;
 
-        return $res;
+        return true;
     }
 
     /**
@@ -266,17 +255,17 @@ class CachePool implements CachePoolInterface
         if (!$this->runExtensions(ES::STAGE_PRE_COMMIT)) return false;
 
         // commit to pool
-        if (!($res = $this->driver->commit())) {
-            $this->setError(
+        if (!$this->driver->commit()) {
+            return $this->falseAndSetError(
                 $this->driver->getError(),
                 $this->driver->getErrorCode()
             );
         }
 
         // after commit
-        $this->runExtensions(ES::STAGE_POST_COMMIT);
+        if (!$this->runExtensions(ES::STAGE_POST_COMMIT)) return false;
 
-        return $res;
+        return true;
     }
 
     /**

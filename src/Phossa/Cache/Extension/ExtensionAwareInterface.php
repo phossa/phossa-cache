@@ -49,4 +49,16 @@ interface ExtensionAwareInterface
     public function runExtensions(
         /*# string */ $stage, $item = null
     )/*# : bool */;
+
+    /**
+     * Clear all extensions/methods and load default extensions
+     *
+     * @param  bool $loadDefaults load default extensions also
+     * @return void
+     * @access public
+     * @api
+     */
+    public function clearExtensions(
+        /*# bool */ $loadDefaults = true
+    );
 }

@@ -122,12 +122,13 @@ class CacheItem implements CacheItemInterface
     {
         // get/set already ?
         if ($this->done) return $this->value;
-        $this->done = true;
 
         // check pool has item
+        $this->done = true;
         if ($this->isHit()) {
             // before get
             if (!$this->cache->runExtensions(ES::STAGE_PRE_GET, $this)) {
+                $this->setHit(false);
                 return $this->value;
             }
 
@@ -137,7 +138,11 @@ class CacheItem implements CacheItemInterface
             $this->set($val);
 
             // after get
-            $this->cache->runExtensions(ES::STAGE_POST_GET, $this);
+            if (!$this->cache->runExtensions(ES::STAGE_POST_GET, $this)) {
+                $this->setHit(false);
+                $this->set(null);
+                return $this->value;
+            }
         }
 
         return $this->value;
@@ -151,15 +156,16 @@ class CacheItem implements CacheItemInterface
         if (!is_bool($this->hit)) {
             // before has
             if (!$this->cache->runExtensions(ES::STAGE_PRE_HAS, $this)) {
-                $this->hit = false;
-                return $this->hit;
+                return $this->setHit(false);
             }
 
             $this->expire = $this->cache->getDriver()->has($this->key);
             $this->hit = $this->expire < time() ? false : true;
 
             // after has
-            $this->cache->runExtensions(ES::STAGE_POST_HAS, $this);
+            if (!$this->cache->runExtensions(ES::STAGE_POST_HAS, $this)) {
+                return $this->setHit(false);
+            }
         }
 
         return $this->hit;
@@ -168,9 +174,11 @@ class CacheItem implements CacheItemInterface
     /**
      * {@inheritDoc}
      */
-    public function setHit(/*# bool */ $status)
-    {
+    public function setHit(
+        /*# bool */ $status
+    )/*# : bool */ {
         $this->hit = (bool) $status;
+        return $this->hit;
     }
 
     /**

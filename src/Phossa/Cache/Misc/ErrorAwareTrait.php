@@ -41,6 +41,14 @@ trait ErrorAwareTrait
     /**
      * {@inheritDoc}
      */
+    public function hasError()/*# : bool */
+    {
+        return $this->err_code > 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function getError()/*# : string */
     {
         return $this->error;

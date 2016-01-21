@@ -25,10 +25,12 @@ class CacheItemTest extends \PHPUnit_Framework_TestCase
         ]);
 
         $this->cache  = new CachePool($driver);
+        $this->cache->clear();
 
         $this->object = new CacheItem('test', $this->cache, [
             'ttl'   => 60
         ]);
+
     }
 
     /**

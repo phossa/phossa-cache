@@ -28,6 +28,16 @@ trait ExtensionAwareTrait
     use \Phossa\Cache\Misc\ErrorAwareTrait;
 
     /**
+     * default extensions, MUST LOAD
+     *
+     * @var    array
+     * @access protected
+     */
+    protected $default_ext = [
+        ['className' => 'SerializeExtension']
+    ];
+
+    /**
      * extensions
      *
      * @var    array
@@ -171,6 +181,21 @@ trait ExtensionAwareTrait
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public function clearExtensions(
+        /*# bool */ $loadDefaults = true
+    ) {
+        $this->extensions = $this->sorted = [];
+        $this->methods = $this->loaded = [];
+
+        // load defaults
+        if ($loadDefaults && sizeof($this->default_ext)) {
+            $this->setExtensions($this->default_ext);
+        }
+    }
+
+    /**
      * Sort extensions
      *
      * @param  string $stage extension stage
@@ -201,7 +226,7 @@ trait ExtensionAwareTrait
             }
 
             // sort extensions by priority
-            if ($sorted[$stage]) asort($sorted[$stage]);
+            if ($sorted[$stage]) ksort($sorted[$stage]);
         }
     }
 }
