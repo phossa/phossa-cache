@@ -29,7 +29,7 @@ composer require "phossa/cache=1.*"
     cache.
 
   - **Stampede**: Whenever cached object's lifetime is less than a configurable
-    time, by certain percentage, the caching return false on 'isHit()' which
+    time, by certain percentage, the cache will return false on 'isHit()' which
     will trigger re-generation of the object.
 
   - **Encrypt**: a simple extension to encrypt the serialized content
@@ -38,7 +38,7 @@ composer require "phossa/cache=1.*"
 
 - Drivers
 
-  - Filesystem
+  - **FilesystemDriver**
 
     The filesystem driver stores cached item in filesystem. It stores cached
     items in a md5-filename flat file. Configurable settings are
@@ -59,13 +59,70 @@ composer require "phossa/cache=1.*"
     ]);
     ```
 
-  - Null
+  - **NullDriver**
 
-  - Fallback drivers
+    The blackhole driver. used as fallback driver for all other drivers.
 
-  - Composite driver
+  - **Fallback drivers**
 
+    User may configure a fallback driver if the desired driver is not ready.
+    The `NullDriver` is the final fallback for all other drivers.
+
+    ```php
+    /*
+     * set the driver and the fallback driver
+     */
+    $cache = new \Phossa\Cache\CachePool([
+        'className'     => 'MemcacheDriver',
+        'server'        => [ '127.0.0.1', 11211 ],
+        'fallback'      => [
+            'className' => 'FilesystemDriver',
+            'dir_root'  => '/var/tmp/cache',
+        ]
+    ]);
+    ```
+  - **Composite driver**
+
+    The `Composite driver` consists of two drivers, the front-end driver and
+    the backend driver. User filters cachable objects by defining a `tester`
+    callable which will determine which objects stores to both ends or backend
+    only.
+
+    ```php
+    /*
+     * set the composite driver
+     */
+    $cache = new \Phossa\Cache\CachePool([
+        'className'     => 'CompositeDriver',
+        'front'         => [
+            'className'     => 'MemcacheDriver',
+            'server'        => [ '127.0.0.1', 11211 ]
+        ],
+        'back'          => [
+            'className' => 'FilesystemDriver',
+            'dir_root'  => '/var/tmp/cache',
+        ],
+        // if size > 10k, stores at backend only
+        'tester'        => function($item) {
+            if (strlen($item->get()) > 10240) return false;
+            return true;
+        }
+    ]);
+    ```
 - Logging
+
+The phossa-cache supports psr-3 compliant logger. Also provides a `log()`
+method for logging.
+
+```php
+/*
+ * the third argument is used for configuring CachePool
+ */
+$cache = new \Phossa\Cache\CachePool([], [],
+    'logger' => $psrLogger
+);
+$cache->log('info', 'this is an info');
+```
 
 - I18n
 
