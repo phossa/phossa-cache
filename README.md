@@ -23,7 +23,7 @@ composer require "phossa/cache=1.*"
 
 - PHP7 ready for return type declarations and argument type declarations.
 
-- Extensions:
+- **Extensions**:
 
   - **Bypass**: If sees a trigger in URL (e.g. '?nocache=true'), bypass the
     cache.
@@ -36,7 +36,7 @@ composer require "phossa/cache=1.*"
 
   - **GarbageCollect**: a simple extension to auto-clean the cache pool.
 
-- Drivers
+- **Drivers**
 
   - **FilesystemDriver**
 
@@ -81,9 +81,9 @@ composer require "phossa/cache=1.*"
         ]
     ]);
     ```
-  - **Composite driver**
+  - **CompositeDriver**
 
-    The `Composite driver` consists of two drivers, the front-end driver and
+    The `CompositeDriver` consists of two drivers, the front-end driver and
     the backend driver. User filters cachable objects by defining a `tester`
     callable which will determine which objects stores to both ends or backend
     only.
@@ -109,22 +109,61 @@ composer require "phossa/cache=1.*"
         }
     ]);
     ```
-- Logging
+- **Logging**
 
-The phossa-cache supports psr-3 compliant logger. Also provides a `log()`
-method for logging.
+  The phossa-cache supports psr-3 compliant logger. Also provides a `log()`
+  method for logging.
 
-```php
-/*
- * the third argument is used for configuring CachePool
- */
-$cache = new \Phossa\Cache\CachePool([], [],
-    'logger' => $psrLogger
-);
-$cache->log('info', 'this is an info');
-```
+  ```php
+  /*
+   * set the logger
+   */
+  $cache->setLogger($psrLogger);
+  $cache->log('info', 'this is an info');
+  ```
+
+  Or configure with logger at cache init
+
+  ```php
+  /*
+   * the third argument is used for configuring CachePool
+   */
+  $cache = new \Phossa\Cache\CachePool([], [],
+      'logger' => $psrLogger
+  );
+  $cache->log('info', 'this is an info');
+  ```
+
+- **Error**
+
+  No exceptions thrown during caching process except for creating a cache pool
+  object. So only errors will be used.
+
+  ```php
+  /*
+   * create cache pool, exceptions may thrown here
+   */
+  $cache = new \Phossa\Cache\CachePool();
+  $cache->setLogger($psrLogger);
+
+  $item = $cache->getItem('widget_list');
+  $val  = $item->get();
+  if ($cache->hasError()) {
+      $cache->log('error', $cache->getError());
+      $widget_list = compute_expensive_widget_list();
+      $item->set($widget_list);
+      $item->expiresAfter(3600); // expires after an hour
+      $cache->save($item);
+      if ($cache->hasError()) $cache->log('error', $cache->getError());
+  } else {
+      $widget_list = $val;
+  }
+  ```
 
 - I18n
+
+  Messages are in `Message\Message.php`. I18n is possible. See phossa-shared
+  package for detail.
 
 # Usage
 
