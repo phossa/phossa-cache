@@ -1,6 +1,6 @@
 {
     "name": "phossa/phossa-cache",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "license": "MIT",
     "type": "library",
     "description": "The PSR-6 compliant PHP caching system.",
@@ -18,7 +18,7 @@
     "require": {
         "php": ">=5.4.0",
         "psr/cache": "^1.0",
-        "psr/logger": "*",
+        "psr/log": "*",
         "phossa-shared": "1.*"
     },
     "archive": {
