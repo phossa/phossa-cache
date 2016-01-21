@@ -1,7 +1,18 @@
 # Introduction
 
-Phossa-cache is PSR-6 compliant caching package. It supports various drivers
-and uses extension hooks to be feature-rich.
+Phossa-cache is a PSR-6 compliant caching package. It supports various drivers
+and uses extension hook to be feature-rich.
+
+More information about [PSR-6](http://www.php-fig.org/psr/psr-6/) and
+[PSR-6 Meta](http://www.php-fig.org/psr/psr-6/meta/)
+
+# Installation
+
+Install via the `composer` utility.
+
+```
+composer require "phossa/cache=1.*"
+```
 
 # Features
 
@@ -14,19 +25,39 @@ and uses extension hooks to be feature-rich.
 
 - Extensions:
 
-  - Bypass: If sees a trigger in URL (e.g. '?nocache=true'), bypass the cache.
+  - **Bypass**: If sees a trigger in URL (e.g. '?nocache=true'), bypass the
+    cache.
 
-  - Stampede: Whenever cached object's lifetime is less than a configurable
+  - **Stampede**: Whenever cached object's lifetime is less than a configurable
     time, by certain percentage, the caching return false on 'isHit()' which
     will trigger re-generation of the object.
 
-  - Encrypt: a simple extension to encrypt the serialized content
+  - **Encrypt**: a simple extension to encrypt the serialized content
 
-  - GarbageCollect: a simple extension to auto-clean the cache pool.
+  - **GarbageCollect**: a simple extension to auto-clean the cache pool.
 
 - Drivers
 
   - Filesystem
+
+    The filesystem driver stores cached item in filesystem. It stores cached
+    items in a md5-filename flat file. Configurable settings are
+
+    - 'dir_root': the base directory for the filesystem cache
+    - 'hash_level': hashed subdirectory level. default to 2
+    - 'file_pref': cached item filename prefix
+    - 'file_suff': cached item filename suffix
+
+    ```php
+    /*
+     * construct the driver manually
+     */
+    $driver = new \Phossa\Cache\Driver\FilesystemDriver([
+        'hash_level'    => 1,
+        'file_pref'     => 'cache.',
+        'dir_root'      => '/var/tmp/cache',
+    ]);
+    ```
 
   - Null
 
@@ -72,6 +103,22 @@ and uses extension hooks to be feature-rich.
     ]);
     ```
 
+- Use extensions
+
+    ```php
+    /*
+     * SerializeExtension is the default ext, always used.
+     * Second argument is an array of ExtensionInterface or config array
+     */
+    $cache = new \Phossa\Cache\CachePool(
+        [],
+        [
+            [ 'className' => 'BypassExtension' ],
+            [ 'className' => 'StampedeExtension', 'probability' => 80 ]
+        ]
+    ]);
+    ```
+
 # Version
 1.0.0
 
@@ -82,4 +129,4 @@ and uses extension hooks to be feature-rich.
 - Psr/Log 1.*
 
 # License
-MIT License
+[MIT License](http://spdx.org/licenses/MIT)
