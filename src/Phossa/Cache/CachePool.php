@@ -53,7 +53,7 @@ class CachePool implements CachePoolInterface
     /**
      * Cache pool constructor
      *
-     * @param  array|Driver\DriverInterface $driver driver or driver settings
+     * @param  array|Driver\DriverInterface $driver the driver
      * @param  Extension\ExtensionInterface[] $extensions extensions
      * @param  array $configs (optional) cache pool configuration
      * @throws Exception\InvalidArgumentException
@@ -61,7 +61,7 @@ class CachePool implements CachePoolInterface
      * @access public
      */
     public function __construct(
-        $driver,
+        $driver = [],
         array $extensions = [],
         array $configs = []
     ) {
@@ -74,7 +74,8 @@ class CachePool implements CachePoolInterface
             }
         }
 
-        // set driver
+        // driver, if not set, use the FilesystemDriver
+        if (empty($driver)) $driver = [ 'className' => 'FilesystemDriver' ];
         $this->setDriver($driver);
 
         // clear & load default extensions

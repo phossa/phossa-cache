@@ -40,26 +40,14 @@ and uses extension hooks to be feature-rich.
 
 # Usage
 
-```php
-    use Phossa\Cache
+- The simplest usage
 
-    // use config array to set up the driver
-    $driver = new Cache\Driver\FilesystemDriver([
-        'hash_level'    => 1,
-        'file_pref'     => 'cache.',
-        'file_suff'     => '.txt'
-    ]);
-
+    ```php
     /*
-     * init cache with driver and extensions (objects or config arrays)
+     * use the default FilesystemDriver which also set default cache
+     * directory to sys_get_temp_dir() .'/cache'
      */
-    $cache = new Cache\CachePool(
-        $driver,
-        [
-            [ 'className' => 'BypassExtension'],
-            [ 'className' => 'StampedeExtension', 'probability' => 80 ]
-        ]
-    );
+    $cache = new \Phossa\Cache\CachePool();
 
     $item = $cache->getItem('widget_list');
     if (!$item->isHit()) {
@@ -68,8 +56,21 @@ and uses extension hooks to be feature-rich.
         $cache->save($item);
     }
     $widget_list = $item->get();
+    ```
+- Configure the driver
 
-```
+    ```php
+    /*
+     * the first argument is a DriverInterface or driver config array
+     */
+    $cache = new \Phossa\Cache\CachePool([
+        'className'     => 'FilesystemDriver',
+        'hash_level'    => 1, // subdirectory hash levels
+        'file_pref'     => 'cache.', // cache file prefix
+        'file_suff'     => '.txt',   // cache file suffix
+        'dir_root'      => '/var/tmp/cache', // reset cache root
+    ]);
+    ```
 
 # Version
 1.0.0
