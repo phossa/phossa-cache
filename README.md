@@ -136,8 +136,7 @@ composer require "phossa/cache=1.*"
 
 - **Error**
 
-  No exceptions thrown during caching process except for creating a cache pool
-  object. So only errors will be used.
+  No exceptions thrown during caching process. So only errors will be used.
 
   ```php
   /*
