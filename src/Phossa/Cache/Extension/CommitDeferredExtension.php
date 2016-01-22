@@ -12,9 +12,22 @@ namespace Phossa\Cache\Extension;
 
 use Phossa\Cache\CachePoolInterface;
 use Phossa\Cache\CacheItemInterface;
+use Phossa\Cache\Message\Message;
 
 /**
- * Autocommit deferred saves to the stoage
+ * Autocommit deferred saves to the stoage if driver supports saveDeferred
+ *
+ * This extension will be executed at stage ExtensionStage::STAGE_POST_DEFER
+ * which happens right after saveDeferred. By 100/1000 (10%) chance, it will
+ * commit deferred save to the cache.
+ *
+ * e.g.
+ * <code>
+ *     $cache->setExtensions([
+ *         // change percentage to 20% (200/1000)
+ *         [ 'className' => 'CommitDeferredExtension', 'probability' => 200 ]
+ *     ]);
+ * </code>
  *
  * @package \Phossa\Cache
  * @author  Hong Zhang <phossa@126.com>
@@ -58,10 +71,15 @@ class CommitDeferredExtension extends ExtensionAbstract
         /*# string */ $stage,
         CacheItemInterface $item = null
     )/*# : bool */ {
+        // 100/1000 (10%) chances to commit
         if (rand(1, $this->divisor) <= $this->probability) {
-            $cache->log('notice', 'commit deferred in extension');
+            // log message
+            $cache->log('notice', Message::get(Message::CACHE_COMMIT_DEFERRED));
+
+            // commit deferred
             $cache->getDriver()->commit();
         }
+        // always return true
         return true;
     }
 }

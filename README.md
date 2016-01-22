@@ -1,7 +1,8 @@
 # Introduction
 
 Phossa-cache is a PSR-6 compliant caching package. It supports various drivers
-and uses extension hook to be feature-rich.
+and useful features like bypass, encrypt, stampede protection, garbage collect,
+taggable item etc.
 
 More information about [PSR-6](http://www.php-fig.org/psr/psr-6/) and
 [PSR-6 Meta](http://www.php-fig.org/psr/psr-6/meta/)
@@ -34,9 +35,14 @@ composer require "phossa/phossa-cache=1.*"
     time, by certain percentage, the cache will return false on 'isHit()' which
     will trigger re-generation of the object.
 
-  - **Encrypt**: a simple extension to encrypt the serialized content
+  - **Encrypt**: A simple extension to encrypt the serialized content
 
-  - **GarbageCollect**: a simple extension to auto-clean the cache pool.
+  - **GarbageCollect**: A simple extension to auto-clean the cache pool.
+
+  - **Taggable**: Item is taggable and can be cleared by tag.
+
+  - **DistributeMiss**: Even out the spikes of item misses by alter expiration
+    time a little bit.
 
 - **Drivers**
 
@@ -102,7 +108,7 @@ composer require "phossa/phossa-cache=1.*"
         ],
         'back'          => [
             'className' => 'FilesystemDriver',
-            'dir_root'  => '/var/tmp/cache',
+            'dir_root'  => '/var/tmp/cache'
         ],
         // if size > 10k, stores at backend only
         'tester'        => function($item) {
@@ -228,8 +234,9 @@ composer require "phossa/phossa-cache=1.*"
     // ending '/' means delete the hierarchy structure
     $cache->deleteItem('mydomain/host1/');
     ```
+
 # Version
-1.0.0
+1.0.6
 
 # Dependencies
 

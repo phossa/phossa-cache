@@ -16,7 +16,27 @@ use Phossa\Cache\CacheItemInterface;
 /**
  * FilesystemDriver
  *
- * @package \Phossa\Shared
+ * <code>
+ *     $driver = new FilesystemDriver([
+ *         'hash_level'    => 1, // subdir hash level
+ *         'file_pref'     => 'cache.', // cache file prefix
+ *         'dir_root'      => '/var/tmp/cache', // cache directory
+ *     ]);
+ *
+ *     $cache = new \Phossa\Cache\CachePool($driver);
+ * </code>
+ *
+ * or
+ *
+ * <code>
+ *     // init cache with driver config array
+ *     $cache = new \Phossa\Cache\CachePool([
+ *         'className'     => 'FilesystemDriver',
+ *         'dir_root'      => '/var/tmp/cache'
+ *     ]);
+ * </code>
+ *
+ * @package \Phossa\Cache
  * @author  Hong Zhang <phossa@126.com>
  * @version 1.0.0
  * @since   1.0.0 added
@@ -24,7 +44,7 @@ use Phossa\Cache\CacheItemInterface;
 class FilesystemDriver extends DriverAbstract
 {
     /**
-     * root directory. if empty, default to system temp dir + '/cache'
+     * cache root directory. Will be set to 'system_temp_dir/cache' if empty
      *
      * @var    string
      * @access protected
@@ -58,7 +78,7 @@ class FilesystemDriver extends DriverAbstract
     /**
      * Construct with configs/settings
      *
-     * @param  array $configs object configs
+     * @param  array $configs (optional) object configs
      * @access public
      */
     public function __construct(array $configs = [])
@@ -74,7 +94,7 @@ class FilesystemDriver extends DriverAbstract
         // clean up
         $this->dir_root = rtrim($this->dir_root, " \t\r\n\0\x0B\\/");
 
-        // error in root dir
+        // set error to trigger fallback driver
         if (!is_dir($this->dir_root) && !mkdir($this->dir_root, 0777, true)) {
             // set error
             $this->falseAndSetError(
@@ -121,7 +141,7 @@ class FilesystemDriver extends DriverAbstract
     )/*# : bool */ {
         $file = $this->getPath($key);
 
-        // directory
+        // delete hierachy directory
         if (is_dir($file)) return $this->deleteFromDir($file, 0, true);
 
         // file
@@ -274,7 +294,7 @@ class FilesystemDriver extends DriverAbstract
                 if (is_dir($sub)) {
                     $res = $this->deleteFromDir($sub, $maxlife, true);
                 } else {
-                    if (!$maxlife || $now - filectime($sub) > $maxlife) {
+                    if (!$maxlife || $now - filemtime($sub) > $maxlife) {
                         $res = unlink($sub);
                     }
                 }

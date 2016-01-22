@@ -16,6 +16,8 @@ use Phossa\Cache\CacheItemInterface;
 /**
  * Statistics collection extension
  *
+ * NOT DONE YET!!
+ *
  * @package \Phossa\Cache
  * @author  Hong Zhang <phossa@126.com>
  * @see     \Phossa\Cache\Extension\ExtensionAbstract

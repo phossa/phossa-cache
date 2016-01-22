@@ -17,6 +17,19 @@ use Phossa\Cache\Message\Message;
 /**
  * A simple encryption extension.
  *
+ * This extension will encrypt the serialized item before save to cache and
+ * will decrypt the item before unserialization.
+ *
+ * <code>
+ *     $cache->setExtensions([
+ *         // set encrypt/decrypt callable
+ *         [ 'className' => 'EncryptExtension',
+ *           'encrypt'   => 'my_encrypt_function',
+ *           'decrypt'   => 'my_decrypt_function'
+ *         ]
+ *     ]);
+ * </code>
+ *
  * @package \Phossa\Cache
  * @author  Hong Zhang <phossa@126.com>
  * @see     \Phossa\Cache\Extension\ExtensionAbstract

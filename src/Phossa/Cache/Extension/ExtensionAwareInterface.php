@@ -34,7 +34,9 @@ interface ExtensionAwareInterface
     public function setExtensions(array $extensions);
 
     /**
-     * Execute extensions at different extension stage
+     * Execute extensions at different extension stage.
+     *
+     * Return false and set error/errcode if one of the execution failed
      *
      * $item: string,               error message string
      *        null                  nothing

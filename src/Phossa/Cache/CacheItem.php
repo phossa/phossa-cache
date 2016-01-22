@@ -81,6 +81,14 @@ class CacheItem implements CacheItemInterface
     protected $ttl    = 28800;
 
     /**
+     * tags
+     *
+     * @var    string[]
+     * @access protected
+     */
+    protected $tags   = [];
+
+    /**
      * Constructor
      *
      * @param  string $key item key
@@ -234,5 +242,21 @@ class CacheItem implements CacheItemInterface
     public function getExpiration()/*# : \DateTime */
     {
         return new \DateTime('@' . $this->expire);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function setTags(array $tags)
+    {
+        $this->tags = $tags;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getTags()/*# : array */
+    {
+        return $this->tags;
     }
 }

@@ -26,7 +26,19 @@ abstract class ExtensionAbstract implements
     \Phossa\Cache\Misc\ErrorAwareInterface
 {
     use \Phossa\Cache\Misc\ErrorAwareTrait,
-        \Phossa\Cache\Misc\SimpleConstructTrait;
+        \Phossa\Cache\Misc\SetPropertiesTrait;
+
+    /**
+     * Simple constructor
+     *
+     * @param  array $configs (optional) extension config array
+     * @access public
+     * @api
+     */
+    public function __construct(array $configs = [])
+    {
+        $this->setProperties($configs);
+    }
 
     /**
      * {@inheritDoc}

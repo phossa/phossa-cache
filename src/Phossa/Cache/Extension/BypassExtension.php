@@ -15,7 +15,28 @@ use Phossa\Cache\CacheItemInterface;
 use Phossa\Cache\Message\Message;
 
 /**
- * Whenever sees a trigger in URL or cookie, bypass the cache
+ * Whenever sees a trigger in $_REQUEST(URL or cookie), bypass the cache
+ *
+ * Suppose the URL is 'http://example.com/test.php?nocache=1'. This will
+ * trigger ByPassExtension and bypass the cache
+ *
+ * e.g.
+ * <code>
+ *     $bypass = new BypassExtension(
+  *        // change trigger to 'mustbypass'
+ *         'trigger' => 'mustbypass',
+ *         // disable message
+ *         'message' => ''
+ *     );
+ * </code>
+ *
+ * or
+ * <code>
+ *     // always bypass the cache by set trigger to ''
+ *     $cache->setExtensions([
+ *         [ 'className' => 'BypassExtension', 'trigger'   => '' ]
+ *     ]);
+ * </code>
  *
  * @package \Phossa\Cache
  * @author  Hong Zhang <phossa@126.com>
@@ -26,7 +47,7 @@ use Phossa\Cache\Message\Message;
 class BypassExtension extends ExtensionAbstract
 {
     /**
-     * trigger in URL or cookie. set trigger to '' to always bypass cache
+     * trigger in URL or cookie. set to '' to always bypass cache
      *
      * @var    string
      * @access protected
@@ -34,7 +55,7 @@ class BypassExtension extends ExtensionAbstract
     protected $trigger = 'nocache';
 
     /**
-     * message for logging
+     * message for logging. set to '' to disable message log in error
      *
      * @var    string
      * @access protected
@@ -58,7 +79,11 @@ class BypassExtension extends ExtensionAbstract
         /*# string */ $stage,
         CacheItemInterface $item = null
     )/*# : bool */ {
-        // whenever sees trigger, return false
+        /*
+         * 1. $this->trigger = '', always bypass the cache
+         * 2. if sees $this->trigger in $_REQUEST, bypass the cache
+         * 3. not to setError if $this->message == ''
+         */
         if ($this->trigger === '' ||
             isset($_REQUEST[$this->trigger]) && $_REQUEST[$this->trigger]) {
             return $this->message ?

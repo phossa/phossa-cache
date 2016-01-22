@@ -26,6 +26,8 @@ interface DriverInterface
     /**
      * Get data from storage base on the key
      *
+     * ALWAYS CALL has() before get() !!!
+     * 
      * @param  string $key the key
      * @return string
      * @access public

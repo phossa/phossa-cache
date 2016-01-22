@@ -82,6 +82,26 @@ class Message extends MessageAbstract
      */
     const CACHE_FAIL_ENCRYPT    = 1512220917;
 
+    /**
+     * Unknown property "%s" for "%s"
+     */
+    const CACHE_UNKNOWN_PROP    = 1512220918;
+
+    /**
+     * Autocommit deferred to cache
+     */
+    const CACHE_COMMIT_DEFERRED = 1512220919;
+
+    /**
+     * Garbage collection at %s
+     */
+    const CACHE_GARBAGE_COLLECT = 1512220920;
+
+    /**
+     * Stampede protection triggered for "%s"
+     */
+    const CACHE_STAMPEDE_EXT    = 1512220921;
+
     /**#@-*/
 
     /**
@@ -99,5 +119,9 @@ class Message extends MessageAbstract
         self::CACHE_FAIL_WRITEFILE  => 'Fwrite "%s" failed',
         self::CACHE_FAIL_DRIVER     => 'Driver "%s" failed, fallback to Null',
         self::CACHE_FAIL_ENCRYPT    => 'Encrypt/decrypt failed for key "%s"',
+        self::CACHE_UNKNOWN_PROP    => 'Unknown property "%s" for "%s"',
+        self::CACHE_COMMIT_DEFERRED => 'Autocommit deferred to cache',
+        self::CACHE_GARBAGE_COLLECT => 'Garbage collection at %s',
+        self::CACHE_STAMPEDE_EXT    => 'Stampede protection triggered for "%s"',
     ];
 }

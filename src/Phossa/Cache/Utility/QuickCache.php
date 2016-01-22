@@ -13,7 +13,18 @@ namespace Phossa\Cache\Utility;
 /**
  * QuickCache
  *
- * Provides a usable cache class
+ * Extends the CachePool class with a useful method `cachedCallable`
+ *
+ * <code>
+ *     // set default ttl to 24400
+ *     $cache  = new \Phossa\Cache\Utility\QuichCache(
+ *         [],[], ['ttl' => 24400]
+ *     );
+ *
+ *     // try cache first for the result of `myFunction($myParam0, $myParam1)`
+ *     // if it is a miss, execute myFunction and save result to cache
+ *     $result = $cache->cachedCallable('myFunction', $myParam0, $myParam1);
+ * </code>
  *
  * @package \Phossa\Cache
  * @author  Hong Zhang <phossa@126.com>
@@ -23,7 +34,7 @@ namespace Phossa\Cache\Utility;
 class QuickCache extends \Phossa\Cache\CachePool
 {
     /**
-     * default ttl
+     * default ttl for the cached callable result
      *
      * @var    int
      * @access protected

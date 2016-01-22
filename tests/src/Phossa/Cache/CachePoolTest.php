@@ -25,6 +25,7 @@ class CachePoolTest extends \PHPUnit_Framework_TestCase
         ]);
 
         $this->object = new CachePool($driver);
+        $this->object->clear();
     }
 
     /**
@@ -75,6 +76,9 @@ class CachePoolTest extends \PHPUnit_Framework_TestCase
      */
     public function testClear()
     {
+        $item = $this->object->getItem('test');
+        $item->set('wow');
+        $this->object->save($item);
         $this->assertTrue($this->object->hasItem('test'));
         $this->assertTrue($this->object->clear());
         $this->assertFalse($this->object->hasItem('test'));
@@ -235,6 +239,8 @@ class CachePoolTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * test EncryptExtension
+     *
      * @covers Phossa\Cache\CachePool::runExtensions
      */
     public function testRunExtensions2()
@@ -267,10 +273,37 @@ class CachePoolTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers Phossa\Cache\CachePool::__call
+     * test TaggableExtension
+     *
+     * @covers Phossa\Cache\CachePool::runExtensions
      */
-    public function testCall()
+    public function testRunExtensions3()
     {
+        $cache = $this->object;
 
+        // test TaggableExtension
+        $cache->setExtensions([
+            [ 'className' => 'TaggableExtension' ],
+        ]);
+
+        $key = 'taggable';
+
+        // save item
+        $item = $cache->getItem($key);
+        $item->set('wow');
+        $item->setTags(['tagA', 'tagB']);
+        $cache->save($item);
+
+        // try get
+        $item2 = $cache->getItem($key);
+        $this->assertEquals('wow', $item2->get());
+
+        // clear by tag
+        $cache->clearByTag('tagA');
+        $cache->clearByTag('tagB');
+
+        // a miss
+        $item3 = $cache->getItem($key);
+        $this->assertFalse($item3->isHit());
     }
 }

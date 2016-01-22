@@ -41,4 +41,24 @@ interface CacheItemInterface extends \Psr\Cache\CacheItemInterface
      * @api
      */
     public function setHit(/*# bool */ $status)/*# : bool */;
+
+    /**
+     * Set tags to this item
+     *
+     * @param  string[] $tags tags array
+     * @return void
+     * @access public
+     * @api
+     */
+    public function setTags(array $tags);
+
+    /**
+     * Get item tags
+     *
+     * @param  void
+     * @param  string[]
+     * @access public
+     * @api
+     */
+    public function getTags()/*# : array */;
 }

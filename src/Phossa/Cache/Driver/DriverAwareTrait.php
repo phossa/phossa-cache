@@ -39,32 +39,48 @@ trait DriverAwareTrait
     public function setDriver($configs, $fallback = true)
     {
         try {
+            // alway reset driver
             $this->driver = null;
+
+            // driver config array found
             if (is_array($configs) && isset($configs['className'])) {
+                // get driver class
                 $class = $configs['className'];
-                // append namespace if missing
+                unset($configs['className']);
+
+                // fix classname if namespace missing
                 if (strpos($class, '\\') === false) {
                     $class = __NAMESPACE__ . '\\' . $class;
                 }
+
+                // remember fallback driver
+                if (isset($configs['fallback'])) {
+                    $_fallback = $configs['fallback'];
+                    unset($configs['fallback']);
+                }
+
+                // construct driver instance
                 if (is_a($class, '\Phossa\Cache\Driver\DriverAbstract', true)) {
                     $this->driver = new $class($configs);
                 }
+
+            // driver instance found
             } else if ($configs instanceof DriverInterface) {
                 $this->driver = $configs;
             }
 
-            if (is_null($this->driver)) {
-                throw new \Exception(gettype($configs));
-            }
+            // driver not set properly
+            if (is_null($this->driver)) throw new \Exception(gettype($configs));
 
-            // driver error
+            // driver error found
             if ($this->driver->getErrorCode()) {
+                // use fallback driver
                 if ($fallback) {
-                    // fallback to user-defined driver
-                    if (isset($configs['fallback'])) {
-                        $this->setDriver($configs['fallback']);
+                    // user-defined fallback driver
+                    if (isset($_fallback)) {
+                        $this->setDriver($_fallback);
 
-                    // fallback to NullDriver
+                    // the default fallback NullDriver
                     } else {
                         $this->setDriver(new NullDriver());
                     }
@@ -77,6 +93,7 @@ trait DriverAwareTrait
                     );
                 }
             }
+
         } catch (\Exception $e) {
             throw new InvalidArgumentException(
                 Message::get(Message::CACHE_INVALID_DRIVER, $e->getMessage()),

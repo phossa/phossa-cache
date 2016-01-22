@@ -15,7 +15,18 @@ use Phossa\Cache\CacheItemInterface;
 /**
  * NullDriver
  *
- * @package \Phossa\Shared
+ * Basically this driver is a blackhole, doing nothing at all. It is the final
+ * fallback driver for all other drivers.
+ *
+ * <code>
+ *     $cache = new \Phossa\Cache\CachePool([
+ *         'className'     => 'MemcacheDriver',
+ *         'server'        => [ '127.0.0.1', 11211 ],
+ *         'fallback'      => [ 'className' => 'NullDriver' ]
+ *     ]);
+ * </code>
+ *
+ * @package \Phossa\Cache
  * @author  Hong Zhang <phossa@126.com>
  * @version 1.0.0
  * @since   1.0.0 added

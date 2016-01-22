@@ -38,7 +38,7 @@ trait ExtensionAwareTrait
     ];
 
     /**
-     * extensions
+     * extensions array
      *
      * @var    array
      * @access protected
@@ -54,7 +54,7 @@ trait ExtensionAwareTrait
     protected $sorted       = [];
 
     /**
-     * methods from extensions
+     * methods registered from extensions
      *
      * @var    callable[]
      * @access protected
@@ -62,7 +62,7 @@ trait ExtensionAwareTrait
     protected $methods      = [];
 
     /**
-     * loaded extensions
+     * marker to prevent extension loaded twice
      *
      * @var    array
      * @access protected
@@ -70,16 +70,33 @@ trait ExtensionAwareTrait
     protected $loaded       = [];
 
     /**
-     * call extension methods if any
+     * call extension methods if registered
+     *
+     * After registering extension method with CachePool. User may use these
+     * methods via CachePool object
+     *
+     * e.g.
+     * <code>
+     *     $cache = new \Phossa\Cache\CachePool();
+     *
+     *     // taggableExtension registers a 'clearByTag' method
+     *     $cache->setExtensions([
+     *         [ 'className' => 'TaggableExtension' ]
+     *     ]);
+     *
+     *     $cache->clearByTag('bingo');
+     * </code>
      *
      * @param  string $method method name
-     * @param  array $arguments arguments
+     * @param  array $arguments method arguments
      * @return mixed
      * @access public
      */
     public function __call($method, array $arguments)
     {
         if (isset($this->methods[$method])) {
+            // put $cache to the first of $arguments
+            array_unshift($arguments, $this);
             return call_user_func_array($this->methods[$method], $arguments);
         } else {
             throw new Exception\BadMethodCallException(
@@ -97,17 +114,23 @@ trait ExtensionAwareTrait
      */
     public function setExtensions(array $extensions)
     {
-        // reset sorted array
+        // always reset sorted array
         $this->sorted = [];
 
+        // load extension one by one
         foreach($extensions as $ext) {
-            // construct extension on the fly
+            // extension config array found
             if (is_array($ext) && isset($ext['className'])) {
+                // find extension class
                 $class = $ext['className'];
+                unset($ext['className']);
+
                 // append namespace if missing
                 if (strpos($class, '\\') === false) {
                     $class = __NAMESPACE__ . '\\' . $class;
                 }
+
+                // create extension instance
                 if (is_a(
                     $class,
                     '\Phossa\Cache\Extension\ExtensionAbstract',
@@ -115,8 +138,10 @@ trait ExtensionAwareTrait
                 )) $ext = new $class($ext);
             }
 
+            // extension instance found and not loaded yet
             if ($ext instanceof ExtensionInterface &&
-                !isset($this->loaded[get_class($ext)])) {
+                !isset($this->loaded[get_class($ext)])
+            ) {
 
                 // stages handling
                 $handles = $ext->stagesHandling();
@@ -124,7 +149,7 @@ trait ExtensionAwareTrait
                     $this->extensions[$stage][$priority][] = $ext;
                 }
 
-                // register methods with cache pool
+                // register extension methods with cache pool
                 $methods = $ext->registerMethods();
                 foreach($methods as $func) {
                     if (method_exists($ext, $func) &&
@@ -142,7 +167,9 @@ trait ExtensionAwareTrait
                     }
                 }
 
+                // mark this ext loaded
                 $this->loaded[get_class($ext)] = true;
+
             } else {
                 throw new Exception\InvalidArgumentException(
                     Message::get(
@@ -165,11 +192,12 @@ trait ExtensionAwareTrait
         // sort extensions for this stage by priority
         $this->sortExtensions($stage);
 
-        // run each extensions
+        // run each extensions in this stage
         foreach($this->sorted[$stage] as $e) {
             /* @var $ex ExtensionAbstract */
             foreach($e as $ex) {
                 if (!$ex($this, $stage, $item)) {
+                    // failed, get extension error
                     return $this->falseAndSetError(
                         $ex->getError(), $ex->getErrorCode()
                     );
@@ -177,6 +205,7 @@ trait ExtensionAwareTrait
             }
         }
 
+        // success and flush error
         return $this->trueAndFlushError();
     }
 
@@ -186,17 +215,18 @@ trait ExtensionAwareTrait
     public function clearExtensions(
         /*# bool */ $loadDefaults = true
     ) {
+        // flush all
         $this->extensions = $this->sorted = [];
         $this->methods = $this->loaded = [];
 
-        // load defaults
+        // load defaults if wanted
         if ($loadDefaults && sizeof($this->default_ext)) {
             $this->setExtensions($this->default_ext);
         }
     }
 
     /**
-     * Sort extensions
+     * Sort extensions by priority for $stage
      *
      * @param  string $stage extension stage
      * @return void
@@ -205,6 +235,8 @@ trait ExtensionAwareTrait
     protected function sortExtensions(/*# string */ $stage)
     {
         $sorted = &$this->sorted;
+
+        // if not sorted yet
         if (!isset($sorted[$stage])) {
             $sorted[$stage] = [];
 
@@ -215,7 +247,7 @@ trait ExtensionAwareTrait
                 }
             }
 
-            // STAGE_ALL
+            // process the special STAGE_ALL
             $all = ExtensionStage::STAGE_ALL;
             if (isset($this->extensions[$all])) {
                 foreach($this->extensions[$all] as $p => $e) {

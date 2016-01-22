@@ -25,6 +25,7 @@ use Phossa\Cache\Extension\ExtensionStage as ES;
 class CachePool implements CachePoolInterface
 {
     use Misc\LoggerAwareTrait,
+        Misc\SetPropertiesTrait,
         Driver\DriverAwareTrait,
         Extension\ExtensionAwareTrait;
 
@@ -66,13 +67,7 @@ class CachePool implements CachePoolInterface
         array $configs = []
     ) {
         // set configs
-        if ($configs) {
-            foreach($configs as $name => $value) {
-                if (isset($this->$name)) {
-                    $this->$name = $value;
-                }
-            }
-        }
+        if ($configs) $this->setProperties($configs);
 
         // driver, if not set, use the FilesystemDriver
         if (empty($driver)) $driver = [ 'className' => 'FilesystemDriver' ];

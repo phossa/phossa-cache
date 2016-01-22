@@ -12,9 +12,24 @@ namespace Phossa\Cache\Extension;
 
 use Phossa\Cache\CachePoolInterface;
 use Phossa\Cache\CacheItemInterface;
+use Phossa\Cache\Message\Message;
 
 /**
  * Garbage collection for the cache
+ *
+ * This extension will remove garbages (stale cached items) from the cache
+ * automatically in ExtensionStage::STAGE_POST_GET stage by 0.3% chance.
+ *
+ * e.g.
+ * <code>
+ *     $cache->setExtensions([
+ *         [
+ *            'className'    => 'GarbageCollectExtension',
+ *            'probability'  => 10,  // change to 1% (10/1000)
+ *            'max_lifetime' => 3600 // older than 1 hour is stale
+ *         ]
+ *     ]);
+ * </code>
  *
  * @package \Phossa\Cache
  * @author  Hong Zhang <phossa@126.com>
@@ -41,7 +56,7 @@ class GarbageCollectExtension extends ExtensionAbstract
     protected $divisor      = 1000;
 
     /**
-     * Max lifetime for item in sec
+     * Max lifetime for item in second
      *
      * @var    int
      * @access protected
@@ -66,11 +81,15 @@ class GarbageCollectExtension extends ExtensionAbstract
         CacheItemInterface $item = null
     )/*# : bool */ {
         if (rand(1, $this->divisor) <= $this->probability) {
-            $cache->getDriver()->purge(
-                $this->max_lifetime
-            );
-            $cache->log('info', 'garbage collection');
+            // log message
+            $cache->log('info', Message::get(
+                Message::CACHE_GARBAGE_COLLECT, date("Y-m-d H:i:s")
+            ));
+
+            // purge those staled
+            $cache->getDriver()->purge($this->max_lifetime);
         }
+        // always true
         return true;
     }
 }
