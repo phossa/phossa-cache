@@ -1,6 +1,6 @@
 {
     "name": "phossa/phossa-cache",
-    "version": "1.0.7",
+    "version": "1.0.8",
     "license": "MIT",
     "type": "library",
     "description": "The PSR-6 compliant PHP caching system.",
@@ -15,11 +15,14 @@
     "autoload": {
         "psr-0": { "Phossa\\Cache\\": "src/" }
     },
+    "autoload-dev": {
+        "psr-0": { "Phossa\\Cache\\": "tests/src/" }
+    },
     "require": {
         "php": ">=5.4.0",
         "psr/cache": "^1.0",
         "psr/log": "*",
-        "phossa/phossa-shared": "1.*"
+        "phossa/phossa-shared": "^1.0.6"
     },
     "archive": {
         "exclude": ["!vendor", "tests", "*phpunit.xml",  "composer.lock"]
