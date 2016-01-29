@@ -236,13 +236,14 @@ composer require "phossa/phossa-cache=1.*"
     ```
 
 # Version
-1.0.6
+1.0.7
 
 # Dependencies
 
 - PHP >= 5.4.0
 - Phossa-shared 1.*
-- Psr/Log 1.*
+- psr/cache 1.*
+- psr/log 1.*
 
 # License
 [MIT License](http://spdx.org/licenses/MIT)
