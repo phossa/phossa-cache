@@ -114,7 +114,7 @@ class CacheItemTest extends \PHPUnit_Framework_TestCase
         $item->expiresAfter(1);
 
         $this->assertGreaterThan(time(), $item->getExpiration()->getTimestamp());
-        sleep(2);
+        sleep(5);
         $this->assertLessThan(time(), $item->getExpiration()->getTimestamp());
     }
 
