@@ -97,15 +97,10 @@ class CacheItemTest extends \PHPUnit_Framework_TestCase
     public function testExpiresAt()
     {
         $time = time() + 1200;
-        var_dump($time);
         $item = $this->object;
         $item->set('wow');
-        $dt   = new \DateTime('@' . $time);
-        var_dump($dt);
-        $item->expiresAt($dt);
+        $item->expiresAt(new \DateTime('@' . $time));
 
-        var_dump($item->getExpiration());
-        var_dump($item->getExpiration()->getTimestamp());
         $this->assertEquals($time, $item->getExpiration()->getTimestamp());
     }
 
