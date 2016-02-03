@@ -10,6 +10,8 @@
 
 namespace Phossa\Cache\Exception;
 
+use \Phossa\Shared\Exception\BadMethodCallException as BMException;
+
 /**
  * BadMethodCallException for \Phossa\Cache
  *
@@ -20,11 +22,7 @@ namespace Phossa\Cache\Exception;
  * @version 1.0.0
  * @since   1.0.0 added
  */
-class BadMethodCallException
-    extends
-        \Phossa\Shared\Exception\BadMethodCallException
-    implements
-        ExceptionInterface
+class BadMethodCallException extends BMException implements ExceptionInterface
 {
 
 }
