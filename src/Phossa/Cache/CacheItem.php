@@ -217,6 +217,7 @@ class CacheItem implements CacheItemInterface
             /* @var $expiration \DateTimeInterface */
             $this->expire = $expiration->getTimestamp();
         }
+        var_dump($this->expire);
         return $this;
     }
 
