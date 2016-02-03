@@ -211,14 +211,15 @@ class CacheItem implements CacheItemInterface
      */
     public function expiresAt($expiration)/*# : CacheItemInterface */
     {
-        var_dump($expiration);
         if ($expiration === null) {
             $this->expire = time() + $this->ttl;
         } else if ($expiration instanceof \DateTimeInterface) {
             /* @var $expiration \DateTimeInterface */
+            var_dump($expiration);
             $this->expire = $expiration->getTimestamp();
+            var_dump($expiration->getTimestamp());
+            var_dump($this->expire);
         }
-        var_dump($this->expire);
         return $this;
     }
 
