@@ -20,9 +20,7 @@ class SerializeExtensionTest extends \PHPUnit_Framework_TestCase
         $this->object = new SerializeExtension;
 
         // cache
-        $this->cache  = new \Phossa\Cache\CachePool([
-            'className' => '\Phossa\Cache\Driver\FilesystemDriver'
-        ]);
+        $this->cache  = new \Phossa\Cache\CachePool();
     }
 
     /**

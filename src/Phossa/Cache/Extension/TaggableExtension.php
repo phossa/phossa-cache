@@ -1,10 +1,15 @@
 <?php
-/*
+/**
  * Phossa Project
  *
- * @see         http://www.phossa.com/
- * @copyright   Copyright (c) 2015 phossa.com
- * @license     http://mit-license.org/ MIT License
+ * PHP version 5.4
+ *
+ * @category  Package
+ * @package   Phossa\Cache
+ * @author    Hong Zhang <phossa@126.com>
+ * @copyright 2015 phossa.com
+ * @license   http://mit-license.org/ MIT License
+ * @link      http://www.phossa.com/
  */
 /*# declare(strict_types=1); */
 
@@ -20,24 +25,27 @@ use Phossa\Cache\CacheItemInterface;
  *
  * e.g.
  * <code>
- *     $cache = new \Phossa\Cache\CachePool();
- *
- *     // taggableExtension registers a 'clearByTag' method
- *     $cache->setExtensions([
- *         [ 'className' => 'TaggableExtension' ]
- *     ]);
- *
+ *     $taggable = new Extension\TaggableExtension();
+ *     $cache->setExtension($taggable);
  *     $cache->clearByTag('bingo');
  * </code>
  *
- * @package \Phossa\Cache
+ * @package Phossa\Cache
  * @author  Hong Zhang <phossa@126.com>
  * @see     \Phossa\Cache\Extension\ExtensionAbstract
- * @version 1.0.0
+ * @version 1.0.8
  * @since   1.0.0 added
  */
 class TaggableExtension extends ExtensionAbstract
 {
+    /**
+     * tag remember time in seconds
+     *
+     * @var    int
+     * @access protected
+     */
+    protected $tag_life = 31536000; // one year
+
     /**
      * {@inheritDoc}
      */
@@ -55,6 +63,7 @@ class TaggableExtension extends ExtensionAbstract
      */
     public function registerMethods()/*# : array */
     {
+        // register the method
         return [  'clearByTag' ];
     }
 
@@ -66,9 +75,12 @@ class TaggableExtension extends ExtensionAbstract
         /*# string */ $stage,
         CacheItemInterface $item = null
     )/*# : bool */ {
+        // get item's tags
         $tags = $item->getTags();
-        $key  = $item->getKey();
-        if ($tags) {
+
+        // record to a $tagItem (one tag one tagItem)
+        if (count($tags)) {
+            $key = $item->getKey();
             foreach($tags as $tag) {
                 $tagKey  = $this->getTagKey($tag);
                 $tagItem = $cache->getItem($tagKey);
@@ -80,10 +92,12 @@ class TaggableExtension extends ExtensionAbstract
                 }
 
                 $tagItem->set($keyArray);
-                $tagItem->expiresAfter(86400 * 360); // one year
+                $tagItem->expiresAfter($this->tag_life); // one year
                 $cache->save($tagItem);
             }
         }
+
+        // always true
         return true;
     }
 
@@ -112,7 +126,7 @@ class TaggableExtension extends ExtensionAbstract
         CachePoolInterface $cache,
         /*# string */ $tag
     )/*# : bool */ {
-        // get item for $tag
+        // get tagItem for $tag
         $tagKey  = $this->getTagKey($tag);
         $tagItem = $cache->getItem($tagKey);
 
@@ -131,11 +145,12 @@ class TaggableExtension extends ExtensionAbstract
 
             // update tagItem
             $tagItem->set($keyArray);
-            $tagItem->expiresAfter(86400 * 360); // one year
+            $tagItem->expiresAfter($this->tag_life); // one year
             $cache->save($tagItem);
 
             if ($keyArray) return $this->falseAndSetError($error, $ecode);
         }
+
         return $this->trueAndFlushError();
     }
 }

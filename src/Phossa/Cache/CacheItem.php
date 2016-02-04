@@ -1,10 +1,15 @@
 <?php
-/*
+/**
  * Phossa Project
  *
- * @see         http://www.phossa.com/
- * @copyright   Copyright (c) 2015 phossa.com
- * @license     http://mit-license.org/ MIT License
+ * PHP version 5.4
+ *
+ * @category  Package
+ * @package   Phossa\Cache
+ * @author    Hong Zhang <phossa@126.com>
+ * @copyright 2015 phossa.com
+ * @license   http://mit-license.org/ MIT License
+ * @link      http://www.phossa.com/
  */
 /*# declare(strict_types=1); */
 
@@ -16,16 +21,20 @@ use Phossa\Cache\Extension\ExtensionStage as ES;
 /**
  * Implementation of CacheItemInterface
  *
- * @package \Phossa\Cache
+ * @package Phossa\Cache
  * @author  Hong Zhang <phossa@126.com>
  * @see     \Phossa\Cache\CacheItemInterface
- * @version 1.0.0
+ * @version 1.0.8
  * @since   1.0.0 added
+ * @since   1.0.8 added TaggableItemTrait
  */
 class CacheItem implements CacheItemInterface
 {
+    use Misc\TaggableItemTrait,
+        \Phossa\Shared\Pattern\SetPropertiesTrait;
+
     /**
-     * cache pool
+     * the cache pool
      *
      * @var    CachePoolInterface
      * @access protected
@@ -81,18 +90,10 @@ class CacheItem implements CacheItemInterface
     protected $ttl    = 28800;
 
     /**
-     * tags
-     *
-     * @var    string[]
-     * @access protected
-     */
-    protected $tags   = [];
-
-    /**
      * Constructor
      *
      * @param  string $key item key
-     * @param  CacheItemPoolInterface $cache the cache pool
+     * @param  CachePoolInterface $cache the cache pool
      * @param  array $settings (optional) item settings
      * @access public
      */
@@ -101,12 +102,8 @@ class CacheItem implements CacheItemInterface
         CachePoolInterface $cache,
         array $settings = []
     ) {
-        // set configs
-        if ($settings) {
-            foreach($settings as $k => $v) {
-                if (isset($this->$k)) $this->$k = $v;
-            }
-        }
+        // settings
+        $this->setProperties($settings);
 
         // set key
         $this->key    = $key;
@@ -242,21 +239,5 @@ class CacheItem implements CacheItemInterface
     public function getExpiration()/*# : \DateTime */
     {
         return new \DateTime('@' . $this->expire);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function setTags(array $tags)
-    {
-        $this->tags = $tags;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getTags()/*# : array */
-    {
-        return $this->tags;
     }
 }

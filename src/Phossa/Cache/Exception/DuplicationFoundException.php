@@ -15,18 +15,19 @@
 
 namespace Phossa\Cache\Exception;
 
-use \Phossa\Shared\Exception\BadMethodCallException as BMException;
+use Phossa\Shared\Exception\DuplicationFoundException as DFException;
 
 /**
- * BadMethodCallException for \Phossa\Cache
+ * DuplicationFoundException for \Phossa\Cache
  *
  * @package Phossa\Cache
  * @author  Hong Zhang <phossa@126.com>
  * @see     \Phossa\Cache\Exception\ExceptionInterface
- * @see     \Phossa\Shared\Exception\BadMethodCallException
+ * @see     \Phossa\Shared\Exception\DuplicationFoundException
  * @version 1.0.8
- * @since   1.0.0 added
+ * @since   1.0.8 added
  */
-class BadMethodCallException extends BMException implements ExceptionInterface
+class DuplicationFoundException extends DFException implements
+    ExceptionInterface
 {
 }

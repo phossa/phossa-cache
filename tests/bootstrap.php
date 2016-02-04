@@ -1,8 +1,4 @@
 <?php
-
-# time related
-date_default_timezone_set('PRC');
-
 # system wide composer autoloader
 $basedir = dirname(__DIR__);
 

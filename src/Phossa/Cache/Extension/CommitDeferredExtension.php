@@ -1,10 +1,15 @@
 <?php
-/*
+/**
  * Phossa Project
  *
- * @see         http://www.phossa.com/
- * @copyright   Copyright (c) 2015 phossa.com
- * @license     http://mit-license.org/ MIT License
+ * PHP version 5.4
+ *
+ * @category  Package
+ * @package   Phossa\Cache
+ * @author    Hong Zhang <phossa@126.com>
+ * @copyright 2015 phossa.com
+ * @license   http://mit-license.org/ MIT License
+ * @link      http://www.phossa.com/
  */
 /*# declare(strict_types=1); */
 
@@ -23,16 +28,19 @@ use Phossa\Cache\Message\Message;
  *
  * e.g.
  * <code>
- *     $cache->setExtensions([
+ *     $commit = new Extension\CommitDeferredExtension([
  *         // change percentage to 20% (200/1000)
- *         [ 'className' => 'CommitDeferredExtension', 'probability' => 200 ]
+ *         'probability' => 200
  *     ]);
+ *
+ *     // enable commit extension
+ *     $cache->setExtension($commit);
  * </code>
  *
- * @package \Phossa\Cache
+ * @package Phossa\Cache
  * @author  Hong Zhang <phossa@126.com>
  * @see     \Phossa\Cache\Extension\ExtensionAbstract
- * @version 1.0.0
+ * @version 1.0.8
  * @since   1.0.0 added
  */
 class CommitDeferredExtension extends ExtensionAbstract
@@ -49,7 +57,6 @@ class CommitDeferredExtension extends ExtensionAbstract
      * Divisor, probability divisor, usually 1000
      *
      * @var    int
-     * @type   int
      * @access protected
      */
     protected $divisor      = 1000;

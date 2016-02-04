@@ -1,10 +1,15 @@
 <?php
-/*
+/**
  * Phossa Project
  *
- * @see         http://www.phossa.com/
- * @copyright   Copyright (c) 2015 phossa.com
- * @license     http://mit-license.org/ MIT License
+ * PHP version 5.4
+ *
+ * @category  Package
+ * @package   Phossa\Cache
+ * @author    Hong Zhang <phossa@126.com>
+ * @copyright 2015 phossa.com
+ * @license   http://mit-license.org/ MIT License
+ * @link      http://www.phossa.com/
  */
 /*# declare(strict_types=1); */
 
@@ -15,9 +20,9 @@ use Phossa\Shared\Message\MessageAbstract;
 /**
  * Message class for Phossa\Cache
  *
- * @package \Phossa\Cache
+ * @package Phossa\Cache
  * @author  Hong Zhang <phossa@126.com>
- * @version 1.0.0
+ * @version 1.0.8
  * @since   1.0.0 added
  */
 class Message extends MessageAbstract
@@ -73,7 +78,7 @@ class Message extends MessageAbstract
     const CACHE_FAIL_WRITEFILE  = 1512220915;
 
     /**
-     * Driver "%s" failed, fallback to Null
+     * Cache driver "%s" failed
      */
     const CACHE_FAIL_DRIVER     = 1512220916;
 
@@ -102,6 +107,17 @@ class Message extends MessageAbstract
      */
     const CACHE_STAMPEDE_EXT    = 1512220921;
 
+
+    /**
+     * Cache driver "%s" fallbacks to "%s"
+     */
+    const CACHE_FALLBACK_DRIVER = 1512220922;
+
+    /**
+     * Bypass the cache
+     */
+    const CACHE_BYPASS_EXT      = 1512220923;
+
     /**#@-*/
 
     /**
@@ -117,11 +133,13 @@ class Message extends MessageAbstract
         self::CACHE_FAIL_DELETE     => 'Delete "%s" failed',
         self::CACHE_FAIL_MKDIR      => 'Mkdir "%s" failed',
         self::CACHE_FAIL_WRITEFILE  => 'Fwrite "%s" failed',
-        self::CACHE_FAIL_DRIVER     => 'Driver "%s" failed, fallback to Null',
+        self::CACHE_FAIL_DRIVER     => 'Cache driver "%s" failed',
         self::CACHE_FAIL_ENCRYPT    => 'Encrypt/decrypt failed for key "%s"',
         self::CACHE_UNKNOWN_PROP    => 'Unknown property "%s" for "%s"',
         self::CACHE_COMMIT_DEFERRED => 'Autocommit deferred to cache',
         self::CACHE_GARBAGE_COLLECT => 'Garbage collection at %s',
         self::CACHE_STAMPEDE_EXT    => 'Stampede protection triggered for "%s"',
+        self::CACHE_FALLBACK_DRIVER => 'Cache driver "%s" fallbacks to "%s"',
+        self::CACHE_BYPASS_EXT      => 'Bypass the cache',
     ];
 }

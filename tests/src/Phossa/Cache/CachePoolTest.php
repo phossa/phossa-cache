@@ -204,15 +204,11 @@ class CachePoolTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers Phossa\Cache\CachePool::setExtensions
-     * @expectedException Phossa\Cache\Exception\InvalidArgumentException
+     * @covers Phossa\Cache\CachePool::setExtension
      */
     public function testSetExtensions()
     {
-        $this->object->setExtensions([
-            [ 'className' => 'CommitDeferredExtension' ],
-            [ 'className' => 'StampedExtension' ]
-        ]);
+        $this->object->setExtension(new Extension\CommitDeferredExtension);
     }
 
     /**
@@ -220,9 +216,11 @@ class CachePoolTest extends \PHPUnit_Framework_TestCase
      */
     public function testRunExtensions()
     {
-        $this->object->setExtensions([
-            [ 'className' => 'BypassExtension' ],
-        ]);
+        $this->object->setExtension(
+            new Extension\BypassExtension([
+                'message' => true
+            ])
+        );
 
         // fake to trigger bypass extension
         $_REQUEST['nocache'] = 1;
@@ -231,9 +229,12 @@ class CachePoolTest extends \PHPUnit_Framework_TestCase
             Extension\ExtensionStage::STAGE_PRE_HAS
         );
 
-        $this->assertEquals("bypass cache", $this->object->getError());
         $this->assertEquals(
-            Message\Message::CACHE_MESSAGE,
+            "Bypass the cache",
+            $this->object->getError()
+        );
+        $this->assertEquals(
+            Message\Message::CACHE_BYPASS_EXT,
             $this->object->getErrorCode()
         );
     }
@@ -247,9 +248,7 @@ class CachePoolTest extends \PHPUnit_Framework_TestCase
     {
         $cache = $this->object;
         // test encrypt extension
-        $cache->setExtensions([
-            [ 'className' => 'EncryptExtension' ],
-        ]);
+        $cache->setExtension(new Extension\EncryptExtension());
 
         $key = 'testEncrypt';
 
@@ -282,9 +281,7 @@ class CachePoolTest extends \PHPUnit_Framework_TestCase
         $cache = $this->object;
 
         // test TaggableExtension
-        $cache->setExtensions([
-            [ 'className' => 'TaggableExtension' ],
-        ]);
+        $cache->setExtension(new Extension\TaggableExtension());
 
         $key = 'taggable';
 

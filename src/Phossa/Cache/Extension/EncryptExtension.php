@@ -1,10 +1,15 @@
 <?php
-/*
+/**
  * Phossa Project
  *
- * @see         http://www.phossa.com/
- * @copyright   Copyright (c) 2015 phossa.com
- * @license     http://mit-license.org/ MIT License
+ * PHP version 5.4
+ *
+ * @category  Package
+ * @package   Phossa\Cache
+ * @author    Hong Zhang <phossa@126.com>
+ * @copyright 2015 phossa.com
+ * @license   http://mit-license.org/ MIT License
+ * @link      http://www.phossa.com/
  */
 /*# declare(strict_types=1); */
 
@@ -21,25 +26,25 @@ use Phossa\Cache\Message\Message;
  * will decrypt the item before unserialization.
  *
  * <code>
- *     $cache->setExtensions([
- *         // set encrypt/decrypt callable
- *         [ 'className' => 'EncryptExtension',
+ *     $encrypt = new Extension\EncryptExtension([
  *           'encrypt'   => 'my_encrypt_function',
  *           'decrypt'   => 'my_decrypt_function'
- *         ]
  *     ]);
+ *
+ *     // enable encryption
+ *     $cache->setExtension($encrypt);
  * </code>
  *
- * @package \Phossa\Cache
+ * @package Phossa\Cache
  * @author  Hong Zhang <phossa@126.com>
  * @see     \Phossa\Cache\Extension\ExtensionAbstract
- * @version 1.0.0
+ * @version 1.0.8
  * @since   1.0.0 added
  */
 class EncryptExtension extends ExtensionAbstract
 {
     /**
-     * encrypt callable
+     * encrypt callable, signature `function (string): string {}`
      *
      * @var    callable
      * @access protected
@@ -47,7 +52,7 @@ class EncryptExtension extends ExtensionAbstract
     protected $encrypt = 'base64_encode';
 
     /**
-     * decrypt callable
+     * decrypt callable, signature `function (string): string {}`
      *
      * @var    callable
      * @access protected
@@ -59,9 +64,10 @@ class EncryptExtension extends ExtensionAbstract
      */
     public function stagesHandling()/*# : array */
     {
-        return [ ExtensionStage::STAGE_POST_GET     => 40,
-                 ExtensionStage::STAGE_PRE_SAVE     => 60,
-                 ExtensionStage::STAGE_PRE_DEFER    => 60
+        return [
+            ExtensionStage::STAGE_POST_GET     => 40,
+            ExtensionStage::STAGE_PRE_SAVE     => 70,
+            ExtensionStage::STAGE_PRE_DEFER    => 70
         ];
     }
 
@@ -84,16 +90,21 @@ class EncryptExtension extends ExtensionAbstract
         }
 
         if (isset($res)) {
+            // encrypt/decrypt failed
             if ($res === false) {
                 return $this->falseAndSetError(
                     Message::get(
-                        Message::CACHE_FAIL_ENCRYPT, $item->getKey()
+                        Message::CACHE_FAIL_ENCRYPT,
+                        $item->getKey()
                     ),
                     Message::CACHE_FAIL_ENCRYPT
                 );
             }
+
+            // set to new string value
             $item->set($res);
         }
+
         return true;
     }
 }

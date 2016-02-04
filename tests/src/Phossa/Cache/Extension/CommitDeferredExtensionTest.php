@@ -20,9 +20,7 @@ class CommitDeferredExtensionTest extends \PHPUnit_Framework_TestCase
         $this->object = new CommitDeferredExtension;
 
         // cache
-        $this->cache  = new \Phossa\Cache\CachePool([
-            'className' => '\Phossa\Cache\Driver\FilesystemDriver'
-        ]);
+        $this->cache  = new \Phossa\Cache\CachePool();
     }
 
     /**

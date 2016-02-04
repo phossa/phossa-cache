@@ -1,10 +1,15 @@
 <?php
-/*
+/**
  * Phossa Project
  *
- * @see         http://www.phossa.com/
- * @copyright   Copyright (c) 2015 phossa.com
- * @license     http://mit-license.org/ MIT License
+ * PHP version 5.4
+ *
+ * @category  Package
+ * @package   Phossa\Cache
+ * @author    Hong Zhang <phossa@126.com>
+ * @copyright 2015 phossa.com
+ * @license   http://mit-license.org/ MIT License
+ * @link      http://www.phossa.com/
  */
 /*# declare(strict_types=1); */
 
@@ -14,35 +19,38 @@ namespace Phossa\Cache\Driver;
  * DriverAwareInterface
  *
  * @interface
- * @package \Phossa\Cache
+ * @package Phossa\Cache
  * @author  Hong Zhang <phossa@126.com>
- * @version 1.0.0
+ * @version 1.0.8
  * @since   1.0.0 added
  */
 interface DriverAwareInterface
 {
     /**
-     * Set driver either with an driver object or driver config array
+     * Set cache driver.
      *
-     * fallback driver defined in $configs['fallback'] or final to NullDriver
+     * If $fallback is true and ping() is failed for $driver, allow fallback
+     * driver or NullDriver
      *
-     * @param  array|DriverInterface $configs driver configs or driver
-     * @param  bool $fallback always fallback to NullDriver
+     * @param  DriverInterface $driver the driver object
+     * @param  bool $fallback allow fallback driver
      * @return void
      * @throws \Phossa\Cache\Exception\InvalidArgumentException
-     *         if not the right driver or driver config
+     *         if driver failed
      * @access public
      * @api
      */
-    public function setDriver($configs, $fallback = true);
+    public function setDriver(
+        DriverInterface $driver,
+        /*# bool */ $fallback = true
+    );
 
     /**
-     * Get the driver, have to setDriver() first
+     * Get cache driver. Always setDriver() first
      *
-     * @param  void
-     * @return DriverAbstract
+     * @return DriverInterface
      * @access public
      * @api
      */
-    public function getDriver()/*# : DriverAbstract */;
+    public function getDriver()/*# : DriverInterface */;
 }

@@ -1,10 +1,15 @@
 <?php
-/*
+/**
  * Phossa Project
  *
- * @see         http://www.phossa.com/
- * @copyright   Copyright (c) 2015 phossa.com
- * @license     http://mit-license.org/ MIT License
+ * PHP version 5.4
+ *
+ * @category  Package
+ * @package   Phossa\Cache
+ * @author    Hong Zhang <phossa@126.com>
+ * @copyright 2015 phossa.com
+ * @license   http://mit-license.org/ MIT License
+ * @link      http://www.phossa.com/
  */
 /*# declare(strict_types=1); */
 
@@ -19,10 +24,10 @@ use Phossa\Cache\Message\Message;
  *
  * Serialize before save, and unserialize after get
  *
- * @package \Phossa\Cache
+ * @package Phossa\Cache
  * @author  Hong Zhang <phossa@126.com>
  * @see     \Phossa\Cache\Extension\ExtensionAbstract
- * @version 1.0.0
+ * @version 1.0.8
  * @since   1.0.0 added
  */
 class SerializeExtension extends ExtensionAbstract
@@ -32,9 +37,10 @@ class SerializeExtension extends ExtensionAbstract
      */
     public function stagesHandling()/*# : array */
     {
-        return [ ExtensionStage::STAGE_POST_GET     => 50,
-                 ExtensionStage::STAGE_PRE_SAVE     => 50,
-                 ExtensionStage::STAGE_PRE_DEFER    => 50
+        return [
+            ExtensionStage::STAGE_POST_GET     => 50,
+            ExtensionStage::STAGE_PRE_SAVE     => 50,
+            ExtensionStage::STAGE_PRE_DEFER    => 50
         ];
     }
 

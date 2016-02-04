@@ -1,10 +1,15 @@
 <?php
-/*
+/**
  * Phossa Project
  *
- * @see         http://www.phossa.com/
- * @copyright   Copyright (c) 2015 phossa.com
- * @license     http://mit-license.org/ MIT License
+ * PHP version 5.4
+ *
+ * @category  Package
+ * @package   Phossa\Cache
+ * @author    Hong Zhang <phossa@126.com>
+ * @copyright 2015 phossa.com
+ * @license   http://mit-license.org/ MIT License
+ * @link      http://www.phossa.com/
  */
 /*# declare(strict_types=1); */
 
@@ -15,29 +20,26 @@ use Phossa\Cache\CacheItemInterface;
 use Phossa\Cache\Message\Message;
 
 /**
- * Stampede protected for the cache
+ * Stampede protection for the cache
  *
- * If item expires in 600 seconds (configurable), and the probability 5%
- * (configurable) hits. This extension will mark the $item as a miss to
- * force regenerating the item.
+ * If item expires in 600 seconds (configurable), and by 5% (configurable)
+ * chance, this extension will mark the $item as a miss to force regenerating
+ * the item.
  *
  * This extension will be executed in stage ExtensionStage::STAGE_POST_HAS
  * which is right after $item->isHit() called
  *
  * <code>
- *     $cache->setExtensions([
- *         [
- *            'className'   => 'StampedeExtension',
- *            'probability' => 60, // change property to 6%
- *            'time_left'   => 300 // change time left ot 5 minutes
- *         ]
+ *     $stampede = new Extension\StampedeExtension([
+ *         'probability' => 60, // change property to 6%
+ *         'time_left'   => 300 // change time left ot 5 minutes
  *     ]);
  * </code>
  *
- * @package \Phossa\Cache
+ * @package Phossa\Cache
  * @author  Hong Zhang <phossa@126.com>
  * @see     \Phossa\Cache\Extension\ExtensionAbstract
- * @version 1.0.0
+ * @version 1.0.8
  * @since   1.0.0 added
  */
 class StampedeExtension extends ExtensionAbstract

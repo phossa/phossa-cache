@@ -1,10 +1,15 @@
 <?php
-/*
+/**
  * Phossa Project
  *
- * @see         http://www.phossa.com/
- * @copyright   Copyright (c) 2015 phossa.com
- * @license     http://mit-license.org/ MIT License
+ * PHP version 5.4
+ *
+ * @category  Package
+ * @package   Phossa\Cache
+ * @author    Hong Zhang <phossa@126.com>
+ * @copyright 2015 phossa.com
+ * @license   http://mit-license.org/ MIT License
+ * @link      http://www.phossa.com/
  */
 /*# declare(strict_types=1); */
 
@@ -26,20 +31,11 @@ use Phossa\Cache\CacheItemInterface;
  *     $cache = new \Phossa\Cache\CachePool($driver);
  * </code>
  *
- * or
- *
- * <code>
- *     // init cache with driver config array
- *     $cache = new \Phossa\Cache\CachePool([
- *         'className'     => 'FilesystemDriver',
- *         'dir_root'      => '/var/tmp/cache'
- *     ]);
- * </code>
- *
- * @package \Phossa\Cache
+ * @package Phossa\Cache
  * @author  Hong Zhang <phossa@126.com>
- * @version 1.0.0
+ * @version 1.0.8
  * @since   1.0.0 added
+ * @since   1.0.8 added ping()/$path_func
  */
 class FilesystemDriver extends DriverAbstract
 {
@@ -76,6 +72,16 @@ class FilesystemDriver extends DriverAbstract
     protected $file_suff    = '';
 
     /**
+     * patch generating function
+     *
+     * signature is function($key): string {}
+     *
+     * @var    callable
+     * @access protected
+     */
+    protected $path_func    = null;
+
+    /**
      * Construct with configs/settings
      *
      * @param  array $configs (optional) object configs
@@ -95,7 +101,7 @@ class FilesystemDriver extends DriverAbstract
         $this->dir_root = rtrim($this->dir_root, " \t\r\n\0\x0B\\/");
 
         // set error to trigger fallback driver
-        if (!is_dir($this->dir_root) && !mkdir($this->dir_root, 0777, true)) {
+        if (!is_dir($this->dir_root) && !@mkdir($this->dir_root, 0777, true)) {
             // set error
             $this->falseAndSetError(
                 Message::get(Message::CACHE_FAIL_MKDIR, $this->dir_root),
@@ -107,9 +113,8 @@ class FilesystemDriver extends DriverAbstract
     /**
      * {@inheritDoc}
      */
-    public function get(
-        /*# string */ $key
-    )/*# : string */ {
+    public function get(/*# string */ $key)/*# : string */
+    {
         $file = $this->getPath($key);
         return file_get_contents($file);
     }
@@ -117,9 +122,8 @@ class FilesystemDriver extends DriverAbstract
     /**
      * {inheritDoc}
      */
-    public function has(
-        /*# string */ $key
-    )/*# : int */ {
+    public function has(/*# string */ $key)/*# : int */
+    {
         $file = $this->getPath($key);
         if (file_exists($file)) return filemtime($file);
         return 0;
@@ -136,9 +140,8 @@ class FilesystemDriver extends DriverAbstract
     /**
      * {@inheritDoc}
      */
-    public function delete(
-        /*# string */ $key
-    )/*# : bool */ {
+    public function delete(/*# string */ $key)/*# : bool */
+    {
         $file = $this->getPath($key);
 
         // delete hierachy directory
@@ -159,9 +162,8 @@ class FilesystemDriver extends DriverAbstract
     /**
      * {@inheritDoc}
      */
-    public function save(
-        CacheItemInterface $item
-    )/*# : bool */ {
+    public function save(CacheItemInterface $item)/*# : bool */
+    {
         $key  = $item->getKey();
         $file = $this->getPath($key);
 
@@ -201,9 +203,8 @@ class FilesystemDriver extends DriverAbstract
     /**
      * {@inheritDoc}
      */
-    public function saveDeferred(
-        CacheItemInterface $item
-    )/*# : bool */ {
+    public function saveDeferred(CacheItemInterface $item)/*# : bool */
+    {
         return $this->save($item);
     }
 
@@ -218,10 +219,17 @@ class FilesystemDriver extends DriverAbstract
     /**
      * {@inheritDoc}
      */
-    public function purge(
-        /*# int */ $maxlife
-    )/*# : bool */ {
+    public function purge(/*# int */ $maxlife)/*# : bool */
+    {
         return $this->deleteFromDir($this->dir_root, $maxlife, false);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function ping()/*# : bool */
+    {
+        return is_dir($this->dir_root) && is_writeable($this->dir_root);
     }
 
     /**
@@ -235,6 +243,7 @@ class FilesystemDriver extends DriverAbstract
      */
     protected function getPath(/*# string */ $key)/*# : string */
     {
+        // get directory first
         if (($pos = strrpos($key, '/')) !== false) {
             $dir  = $this->dir_root . DIRECTORY_SEPARATOR .
                     substr($key, 0, $pos) . DIRECTORY_SEPARATOR;
@@ -242,7 +251,16 @@ class FilesystemDriver extends DriverAbstract
         } else {
             $dir  = $this->dir_root . DIRECTORY_SEPARATOR;
         }
-        $file = $key ? $this->hashIt($key) : '';
+
+        // get file path
+        if (is_callable($this->path_func)) {
+            $func = $this->path_func;
+            $file = $func($key);
+
+        // hashed version
+        } else {
+            $file = $key ? $this->hashIt($key) : '';
+        }
 
         return $dir . $file;
     }

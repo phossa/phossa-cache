@@ -1,10 +1,15 @@
 <?php
-/*
+/**
  * Phossa Project
  *
- * @see         http://www.phossa.com/
- * @copyright   Copyright (c) 2015 phossa.com
- * @license     http://mit-license.org/ MIT License
+ * PHP version 5.4
+ *
+ * @category  Package
+ * @package   Phossa\Cache
+ * @author    Hong Zhang <phossa@126.com>
+ * @copyright 2015 phossa.com
+ * @license   http://mit-license.org/ MIT License
+ * @link      http://www.phossa.com/
  */
 /*# declare(strict_types=1); */
 
@@ -28,20 +33,15 @@ use Phossa\Cache\Message\Message;
  *         // disable message
  *         'message' => ''
  *     );
+ *
+ *     // enable bypass extension with $cache
+ *     $cache->setExtension($bypass);
  * </code>
  *
- * or
- * <code>
- *     // always bypass the cache by set trigger to ''
- *     $cache->setExtensions([
- *         [ 'className' => 'BypassExtension', 'trigger'   => '' ]
- *     ]);
- * </code>
- *
- * @package \Phossa\Cache
+ * @package Phossa\Cache
  * @author  Hong Zhang <phossa@126.com>
  * @see     \Phossa\Cache\Extension\ExtensionAbstract
- * @version 1.0.0
+ * @version 1.0.8
  * @since   1.0.0 added
  */
 class BypassExtension extends ExtensionAbstract
@@ -55,12 +55,12 @@ class BypassExtension extends ExtensionAbstract
     protected $trigger = 'nocache';
 
     /**
-     * message for logging. set to '' to disable message log in error
+     * spit message for logging
      *
-     * @var    string
+     * @var    bool
      * @access protected
      */
-    protected $message = 'bypass cache';
+    protected $message = false;
 
     /**
      * {@inheritDoc}
@@ -87,7 +87,10 @@ class BypassExtension extends ExtensionAbstract
         if ($this->trigger === '' ||
             isset($_REQUEST[$this->trigger]) && $_REQUEST[$this->trigger]) {
             return $this->message ?
-                $this->falseAndSetError($this->message, Message::CACHE_MESSAGE):
+                $this->falseAndSetError(
+                    Message::get(Message::CACHE_BYPASS_EXT),
+                    Message::CACHE_BYPASS_EXT
+                ) :
                 false;
 
         // always return true if no trigger found

@@ -1,10 +1,15 @@
 <?php
-/*
+/**
  * Phossa Project
  *
- * @see         http://www.phossa.com/
- * @copyright   Copyright (c) 2015 phossa.com
- * @license     http://mit-license.org/ MIT License
+ * PHP version 5.4
+ *
+ * @category  Package
+ * @package   Phossa\Cache
+ * @author    Hong Zhang <phossa@126.com>
+ * @copyright 2015 phossa.com
+ * @license   http://mit-license.org/ MIT License
+ * @link      http://www.phossa.com/
  */
 /*# declare(strict_types=1); */
 
@@ -17,10 +22,10 @@ use Phossa\Cache\Exception\InvalidArgumentException;
  * Trait implementing DriverAwareInterface
  *
  * @trait
- * @package \Phossa\Cache
+ * @package Phossa\Cache
  * @author  Hong Zhang <phossa@126.com>
  * @see     \Phossa\Cache\Driver\DriverAwareInterface
- * @version 1.0.0
+ * @version 1.0.8
  * @since   1.0.0 added
  */
 trait DriverAwareTrait
@@ -36,68 +41,34 @@ trait DriverAwareTrait
     /**
      * {@inheritDoc}
      */
-    public function setDriver($configs, $fallback = true)
-    {
-        try {
-            // alway reset driver
-            $this->driver = null;
+    public function setDriver(
+        DriverInterface $driver,
+        /*# bool */ $fallback = true
+    ) {
+        // ping first
+        if ($driver->ping()) {
+            $this->driver = $driver;
+            return;
+        }
 
-            // driver config array found
-            if (is_array($configs) && isset($configs['className'])) {
-                // get driver class
-                $class = $configs['className'];
-                unset($configs['className']);
+        // fallback
+        if ($fallback) {
+            // set to fallback driver
+            $this->driver = $driver->getFallback();
 
-                // fix classname if namespace missing
-                if (strpos($class, '\\') === false) {
-                    $class = __NAMESPACE__ . '\\' . $class;
-                }
-
-                // remember fallback driver
-                if (isset($configs['fallback'])) {
-                    $_fallback = $configs['fallback'];
-                    unset($configs['fallback']);
-                }
-
-                // construct driver instance
-                if (is_a($class, '\Phossa\Cache\Driver\DriverAbstract', true)) {
-                    $this->driver = new $class($configs);
-                }
-
-            // driver instance found
-            } else if ($configs instanceof DriverInterface) {
-                $this->driver = $configs;
-            }
-
-            // driver not set properly
-            if (is_null($this->driver)) throw new \Exception(gettype($configs));
-
-            // driver error found
-            if ($this->driver->getErrorCode()) {
-                // use fallback driver
-                if ($fallback) {
-                    // user-defined fallback driver
-                    if (isset($_fallback)) {
-                        $this->setDriver($_fallback);
-
-                    // the default fallback NullDriver
-                    } else {
-                        $this->setDriver(new NullDriver());
-                    }
-                } else {
-                    throw new \Exception(
-                        Message::get(
-                            Message::CACHE_FAIL_DRIVER,
-                            gettype($this->driver)
-                        )
-                    );
-                }
-            }
-
-        } catch (\Exception $e) {
+            // issue warning
+            trigger_error(
+                Message::get(
+                    Message::CACHE_FALLBACK_DRIVER,
+                    get_class($driver),
+                    get_class($this->driver)
+                ),
+                E_USER_WARNING
+            );
+        } else {
             throw new InvalidArgumentException(
-                Message::get(Message::CACHE_INVALID_DRIVER, $e->getMessage()),
-                Message::CACHE_INVALID_DRIVER
+                Message::get(Message::CACHE_FAIL_DRIVER, get_class($driver)),
+                Message::CACHE_FAIL_DRIVER
             );
         }
     }

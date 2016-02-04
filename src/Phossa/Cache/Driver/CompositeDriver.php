@@ -1,10 +1,15 @@
 <?php
-/*
+/**
  * Phossa Project
  *
- * @see         http://www.phossa.com/
- * @copyright   Copyright (c) 2015 phossa.com
- * @license     http://mit-license.org/ MIT License
+ * PHP version 5.4
+ *
+ * @category  Package
+ * @package   Phossa\Cache
+ * @author    Hong Zhang <phossa@126.com>
+ * @copyright 2015 phossa.com
+ * @license   http://mit-license.org/ MIT License
+ * @link      http://www.phossa.com/
  */
 /*# declare(strict_types=1); */
 
@@ -19,27 +24,21 @@ use Phossa\Cache\CacheItemInterface;
  * if cache item needs to be save to the front driver.
  *
  * <code>
- *     $cache = new \Phossa\Cache\CachePool([
- *         'className'     => 'CompositeDriver',
- *         'front'         => [
- *             'className'     => 'MemcacheDriver',
- *             'server'        => [ '127.0.0.1', 11211 ]
- *         ],
- *         'back'          => [
- *             'className' => 'FilesystemDriver',
- *             'dir_root'  => '/var/tmp/cache'
- *         ],
- *         // if size > 10k, stores at backend only
- *         'tester'        => function($item) {
- *             if (strlen($item->get()) > 10240) return false;
- *             return true;
- *         }
- *     ]);
+ *     $driver = new CompositeDriver(
+ *         $frontDriver,
+ *         $backDriver,
+ *         [ 'tester'    => function($item) {
+ *               // if size > 10k, stores at backend only
+ *               if (strlen($item->get()) > 10240) return false;
+ *               return true;
+ *           }
+ *         ]
+ *     );
  * </code>
  *
- * @package \Phossa\Cache
+ * @package Phossa\Cache
  * @author  Hong Zhang <phossa@126.com>
- * @version 1.0.0
+ * @version 1.0.8
  * @since   1.0.0 added
  */
 class CompositeDriver extends DriverAbstract
@@ -75,58 +74,44 @@ class CompositeDriver extends DriverAbstract
     /**
      * Construct with configs/settings
      *
+     * @param  DriverInterface $frontDriver
+     * @param  DriverInterface $backDriver
      * @param  array $configs object configs
      * @access public
      */
-    public function __construct(array $configs = [])
-    {
-        // front end driver
-        if (isset($configs['front'])) {
-            $front = $configs['front'];
-            if (is_array($front)) {
-                $class = $front['className'];
-                unset($front['className']);
-                $this->front = new $class($front);
-            }
-            if ($front instanceof DriverInterface) {
-                $this->front = $front;
-            }
-            unset($configs['front']);
-        }
-        // fallback to NullDriver
-        if (!is_object($this->front)) $this->front = new NullDriver();
-
-        // backend driver
-        if (isset($configs['back'])) {
-            $back = $configs['back'];
-            if (is_array($back)) {
-                $class = $back['className'];
-                unset($back['className']);
-                $this->back = new $class($back);
-            }
-            if ($back instanceof DriverInterface) {
-                $this->back = $back;
-            }
-            unset($configs['back']);
-        }
-        // fallback to NullDriver
-        if (!is_object($this->back)) $this->back  = new NullDriver();
-
+    public function __construct(
+        DriverInterface $frontDriver,
+        DriverInterface $backDriver,
+        array $configs = []
+    ) {
         // set configs
         parent::__construct($configs);
 
+        // front driver
+        if ($frontDriver->ping()) {
+            $this->front = $frontDriver;
+        } else {
+            $this->front = $frontDriver->getFallback();
+        }
+
+        // back driver
+        if ($backDriver->ping()) {
+            $this->back  = $backDriver;
+        } else {
+            $this->back  = $backDriver->getFallback();
+        }
+
         // default tester, will write item to both front/back cache
         if (!is_callable($this->tester)) {
-            $this->tester = function($item) { return true; };
+            $this->tester = function() { return true; };
         }
     }
 
     /**
      * {@inheritDoc}
      */
-    public function get(
-        /*# string */ $key
-    )/*# : string */ {
+    public function get(/*# string */ $key)/*# : string */
+    {
         // try front-end cache first
         if ($this->front->has($key)) return $this->front->get($key);
 
@@ -137,9 +122,8 @@ class CompositeDriver extends DriverAbstract
     /**
      * {inheritDoc}
      */
-    public function has(
-        /*# string */ $key
-    )/*# : int */ {
+    public function has(/*# string */ $key)/*# : int */
+    {
         // try front-end cache first
         $res = $this->front->has($key);
         if ($res) return $res;
@@ -175,9 +159,8 @@ class CompositeDriver extends DriverAbstract
     /**
      * {@inheritDoc}
      */
-    public function delete(
-        /*# string */ $key
-    )/*# : bool */ {
+    public function delete(/*# string */ $key)/*# : bool */
+    {
         // delete from front-end cache
         if (!$this->front->delete($key)) {
             return $this->falseAndSetError(
@@ -200,9 +183,8 @@ class CompositeDriver extends DriverAbstract
     /**
      * {@inheritDoc}
      */
-    public function save(
-        CacheItemInterface $item
-    )/*# : bool */ {
+    public function save(CacheItemInterface $item)/*# : bool */
+    {
         // write to both ?
         $both = $this->tester($item);
 
@@ -228,9 +210,8 @@ class CompositeDriver extends DriverAbstract
     /**
      * {@inheritDoc}
      */
-    public function saveDeferred(
-        CacheItemInterface $item
-    )/*# : bool */ {
+    public function saveDeferred(CacheItemInterface $item)/*# : bool */
+    {
         // write to both ?
         $both = $this->tester($item);
 
@@ -280,9 +261,8 @@ class CompositeDriver extends DriverAbstract
     /**
      * {@inheritDoc}
      */
-    public function purge(
-        /*# int */ $maxlife
-    )/*# : bool */ {
+    public function purge(/*# int */ $maxlife)/*# : bool */
+    {
         // purge front-end cache
         if (!$this->front->purge($maxlife)) {
             return $this->falseAndSetError(
@@ -300,5 +280,13 @@ class CompositeDriver extends DriverAbstract
         }
 
         return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function ping()/*# : bool */
+    {
+        return $this->front->ping() && $this->back->ping();
     }
 }

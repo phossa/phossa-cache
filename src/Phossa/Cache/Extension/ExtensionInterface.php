@@ -1,10 +1,15 @@
 <?php
-/*
+/**
  * Phossa Project
  *
- * @see         http://www.phossa.com/
- * @copyright   Copyright (c) 2015 phossa.com
- * @license     http://mit-license.org/ MIT License
+ * PHP version 5.4
+ *
+ * @category  Package
+ * @package   Phossa\Cache
+ * @author    Hong Zhang <phossa@126.com>
+ * @copyright 2015 phossa.com
+ * @license   http://mit-license.org/ MIT License
+ * @link      http://www.phossa.com/
  */
 /*# declare(strict_types=1); */
 
@@ -17,9 +22,9 @@ use Phossa\Cache\CacheItemInterface;
  * ExtensionInterface
  *
  * @interface
- * @package \Phossa\Cache
+ * @package Phossa\Cache
  * @author  Hong Zhang <phossa@126.com>
- * @version 1.0.0
+ * @version 1.0.8
  * @since   1.0.0 added
  */
 interface ExtensionInterface
@@ -27,9 +32,29 @@ interface ExtensionInterface
     /**
      * Register extension method with cache pool
      *
-     * Returns method names to register with cache pool
+     * Returns method names to register with cache pool. Method signature is
+     * the following: `functin (CachePoolInterface $cache, ...) {}`
      *
-     * @param  void
+     * <code>
+     *     class TaggableExtension extends ExtensionAbstract
+     *     {
+     *         ...
+     *         public function registerMethods() {
+     *             // extension class method names
+     *             return [ 'clearByTag' ];
+     *         }
+     *     }
+     *
+     *     // cache
+     *     $cache = new CachePool();
+     *
+     *     // load extension TaggableExtension
+     *     $cache->setExtensions([ new TaggableExtension() ]);
+     *
+     *     // now we can use 'clearByTag'
+     *     $cache->clearByTag('sports');
+     * </code>
+     *
      * @return string[]
      * @access public
      * @api
@@ -44,10 +69,12 @@ interface ExtensionInterface
      *
      * e.g.
      * <code>
-     *    returns [ ExtensionStage::STAGE_ALL => 20 ];
+     *    public function stagesHandling()
+     *    {
+     *        returns [ ExtensionStage::STAGE_ALL => 20 ];
+     *    }
      * </code>
      *
-     * @param  void
      * @return array
      * @access public
      * @api
@@ -57,8 +84,8 @@ interface ExtensionInterface
     /**
      * Make extension callable
      *
-     * @param  CachePoolInterface $cache cache object
-     * @param  string $stage stage name
+     * @param  CachePoolInterface $cache cache pool object
+     * @param  string $stage stage name (see ExtensionStage)
      * @param  CacheItemInterface $item (optional) if any
      * @return bool
      * @access public

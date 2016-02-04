@@ -1,10 +1,15 @@
 <?php
-/*
+/**
  * Phossa Project
  *
- * @see         http://www.phossa.com/
- * @copyright   Copyright (c) 2015 phossa.com
- * @license     http://mit-license.org/ MIT License
+ * PHP version 5.4
+ *
+ * @category  Package
+ * @package   Phossa\Cache
+ * @author    Hong Zhang <phossa@126.com>
+ * @copyright 2015 phossa.com
+ * @license   http://mit-license.org/ MIT License
+ * @link      http://www.phossa.com/
  */
 /*# declare(strict_types=1); */
 
@@ -14,13 +19,17 @@ namespace Phossa\Cache;
  * CacheItemInterface
  *
  * @interface
- * @package \Phossa\Cache
+ * @package Phossa\Cache
  * @author  Hong Zhang <phossa@126.com>
  * @see     \Psr\Cache\CacheItemInterface
- * @version 1.0.0
+ * @see     \Phossa\Cache\Misc\TaggableItemInterface
+ * @version 1.0.8
  * @since   1.0.0 added
+ * @since   1.0.8 extends TaggableItemInterface
  */
-interface CacheItemInterface extends \Psr\Cache\CacheItemInterface
+interface CacheItemInterface extends
+    Misc\TaggableItemInterface,
+    \Psr\Cache\CacheItemInterface
 {
     /**
      * Returns the expiration time of a not-yet-expired cache item.
@@ -41,24 +50,4 @@ interface CacheItemInterface extends \Psr\Cache\CacheItemInterface
      * @api
      */
     public function setHit(/*# bool */ $status)/*# : bool */;
-
-    /**
-     * Set tags to this item
-     *
-     * @param  string[] $tags tags array
-     * @return void
-     * @access public
-     * @api
-     */
-    public function setTags(array $tags);
-
-    /**
-     * Get item tags
-     *
-     * @param  void
-     * @param  string[]
-     * @access public
-     * @api
-     */
-    public function getTags()/*# : array */;
 }

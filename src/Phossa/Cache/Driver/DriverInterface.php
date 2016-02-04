@@ -1,41 +1,46 @@
 <?php
-/*
+/**
  * Phossa Project
  *
- * @see         http://www.phossa.com/
- * @copyright   Copyright (c) 2015 phossa.com
- * @license     http://mit-license.org/ MIT License
+ * PHP version 5.4
+ *
+ * @category  Package
+ * @package   Phossa\Cache
+ * @author    Hong Zhang <phossa@126.com>
+ * @copyright 2015 phossa.com
+ * @license   http://mit-license.org/ MIT License
+ * @link      http://www.phossa.com/
  */
 /*# declare(strict_types=1); */
 
 namespace Phossa\Cache\Driver;
 
 use Phossa\Cache\CacheItemInterface;
+use Phossa\Cache\Misc\ErrorAwareInterface;
 
 /**
  * DriverInterface
  *
  * @interface
- * @package \Phossa\Cache
+ * @package Phossa\Cache
  * @author  Hong Zhang <phossa@126.com>
- * @version 1.0.0
+ * @version 1.0.8
  * @since   1.0.0 added
+ * @since   1.0.8 added ping()/getFallback()/setFallback()
  */
-interface DriverInterface
+interface DriverInterface extends ErrorAwareInterface
 {
     /**
      * Get data from storage base on the key
      *
      * ALWAYS CALL has() before get() !!!
-     * 
+     *
      * @param  string $key the key
      * @return string
      * @access public
      * @api
      */
-    public function get(
-        /*# string */ $key
-    )/*# : string */;
+    public function get(/*# string */ $key)/*# : string */;
 
     /**
      * The expiration UNIX timestamp, 0 if not found
@@ -45,14 +50,11 @@ interface DriverInterface
      * @access public
      * @api
      */
-    public function has(
-        /*# string */ $key
-    )/*# : int */;
+    public function has(/*# string */ $key)/*# : int */;
 
     /**
      * Clear the cache pool. return false on error
      *
-     * @param  void
      * @return bool
      * @access public
      * @api
@@ -67,9 +69,7 @@ interface DriverInterface
      * @access public
      * @api
      */
-    public function delete(
-        /*# string */ $key
-    )/*# : bool */;
+    public function delete(/*# string */ $key)/*# : bool */;
 
     /**
      * Save item to the pool. return false on error
@@ -79,9 +79,7 @@ interface DriverInterface
      * @access public
      * @api
      */
-    public function save(
-        CacheItemInterface $item
-    )/*# : bool */;
+    public function save(CacheItemInterface $item)/*# : bool */;
 
     /**
      * Save item (deferred) to the pool. return false on error
@@ -91,14 +89,11 @@ interface DriverInterface
      * @access public
      * @api
      */
-    public function saveDeferred(
-        CacheItemInterface $item
-    )/*# : bool */;
+    public function saveDeferred(CacheItemInterface $item)/*# : bool */;
 
     /**
      * Commit deferred to the pool. return false on error.
      *
-     * @param  void
      * @return bool
      * @access public
      * @api
@@ -113,7 +108,35 @@ interface DriverInterface
      * @access public
      * @api
      */
-    public function purge(
-        /*# int */ $maxlife
-    )/*# : bool */;
+    public function purge(/*# int */ $maxlife)/*# : bool */;
+
+    /**
+     * Ping driver, false means driver failed
+     *
+     * @return bool
+     * @access public
+     * @api
+     */
+    public function ping()/*# : bool */;
+
+    /**
+     * Get the fallback driver.
+     *
+     * If not set or fallback driver not responding, return NullDriver
+     *
+     * @return DriverInterface
+     * @access public
+     * @api
+     */
+    public function getFallback()/*# : DriverInterface */;
+
+    /**
+     * Set the fallback driver
+     *
+     * @param  DriverInterface $driver the fallback driver
+     * @return void
+     * @access public
+     * @api
+     */
+    public function setFallback(DriverInterface $driver);
 }

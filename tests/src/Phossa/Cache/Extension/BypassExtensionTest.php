@@ -22,9 +22,7 @@ class BypassExtensionTest extends \PHPUnit_Framework_TestCase
         ]);
 
         // cache
-        $this->cache  = new \Phossa\Cache\CachePool([
-            'className' => '\Phossa\Cache\Driver\FilesystemDriver'
-        ]);
+        $this->cache  = new \Phossa\Cache\CachePool();
     }
 
     /**
@@ -65,7 +63,7 @@ class BypassExtensionTest extends \PHPUnit_Framework_TestCase
         // add trigger in URL
         $_REQUEST['nocache'] = 1;
         $this->assertFalse($ext2($this->cache, ExtensionStage::STAGE_PRE_HAS));
-         * 
+         *
          */
     }
 }

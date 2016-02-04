@@ -1,10 +1,15 @@
 <?php
-/*
+/**
  * Phossa Project
  *
- * @see         http://www.phossa.com/
- * @copyright   Copyright (c) 2015 phossa.com
- * @license     http://mit-license.org/ MIT License
+ * PHP version 5.4
+ *
+ * @category  Package
+ * @package   Phossa\Cache
+ * @author    Hong Zhang <phossa@126.com>
+ * @copyright 2015 phossa.com
+ * @license   http://mit-license.org/ MIT License
+ * @link      http://www.phossa.com/
  */
 /*# declare(strict_types=1); */
 
@@ -22,19 +27,16 @@ use Phossa\Cache\Message\Message;
  *
  * e.g.
  * <code>
- *     $cache->setExtensions([
- *         [
- *            'className'    => 'GarbageCollectExtension',
+ *     $garbage = new Extension\GarbageCollectExtension([
  *            'probability'  => 10,  // change to 1% (10/1000)
  *            'max_lifetime' => 3600 // older than 1 hour is stale
- *         ]
  *     ]);
  * </code>
  *
- * @package \Phossa\Cache
+ * @package Phossa\Cache
  * @author  Hong Zhang <phossa@126.com>
  * @see     \Phossa\Cache\Extension\ExtensionAbstract
- * @version 1.0.0
+ * @version 1.0.8
  * @since   1.0.0 added
  */
 class GarbageCollectExtension extends ExtensionAbstract
@@ -56,7 +58,7 @@ class GarbageCollectExtension extends ExtensionAbstract
     protected $divisor      = 1000;
 
     /**
-     * Max lifetime for item in second
+     * Max lifetime in second, anything older is considered stale
      *
      * @var    int
      * @access protected
@@ -69,7 +71,7 @@ class GarbageCollectExtension extends ExtensionAbstract
     public function stagesHandling()/*# : array */
     {
         // lowest priority
-        return [ ExtensionStage::STAGE_POST_GET => 90 ];
+        return [ ExtensionStage::STAGE_POST_GET => 95 ];
     }
 
     /**
@@ -83,12 +85,14 @@ class GarbageCollectExtension extends ExtensionAbstract
         if (rand(1, $this->divisor) <= $this->probability) {
             // log message
             $cache->log('info', Message::get(
-                Message::CACHE_GARBAGE_COLLECT, date("Y-m-d H:i:s")
+                Message::CACHE_GARBAGE_COLLECT,
+                date("Y-m-d H:i:s")
             ));
 
             // purge those staled
             $cache->getDriver()->purge($this->max_lifetime);
         }
+        
         // always true
         return true;
     }

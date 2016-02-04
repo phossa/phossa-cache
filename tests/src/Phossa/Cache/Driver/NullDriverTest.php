@@ -20,9 +20,7 @@ class NullDriverTest extends \PHPUnit_Framework_TestCase
         $this->object = new NullDriver;
 
         // cache
-        $this->cache  = new \Phossa\Cache\CachePool([
-            'className' => 'FilesystemDriver'
-        ]);
+        $this->cache  = new \Phossa\Cache\CachePool();
     }
 
     /**

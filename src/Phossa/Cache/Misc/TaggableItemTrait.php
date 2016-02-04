@@ -16,28 +16,37 @@
 namespace Phossa\Cache\Misc;
 
 /**
- * LoggerAwareInterface
+ * TaggableItemTrait
  *
- * @interface
+ * @trait
  * @package Phossa\Cache
  * @author  Hong Zhang <phossa@126.com>
  * @version 1.0.8
- * @since   1.0.0 added
+ * @since   1.0.8 added
  */
-interface LoggerAwareInterface extends \Psr\Log\LoggerAwareInterface
+trait TaggableItemTrait
 {
     /**
-     * Log messages
+     * tags
      *
-     * @param  string $level
-     *     debug|info|notice|warning|error|critical|alert|emergency
-     * @param  string $message message to log
-     * @return void
-     * @access public
-     * @api
+     * @var    string[]
+     * @access protected
      */
-    public function log(
-        /*# string */ $level,
-        /*# string */ $message
-    );
+    protected $tags   = [];
+
+    /**
+     * {@inheritDoc}
+     */
+    public function setTags(array $tags)
+    {
+        $this->tags = $tags;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getTags()/*# : array */
+    {
+        return $this->tags;
+    }
 }

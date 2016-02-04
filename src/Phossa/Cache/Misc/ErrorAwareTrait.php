@@ -1,10 +1,15 @@
 <?php
-/*
+/**
  * Phossa Project
  *
- * @see         http://www.phossa.com/
- * @copyright   Copyright (c) 2015 phossa.com
- * @license     http://mit-license.org/ MIT License
+ * PHP version 5.4
+ *
+ * @category  Package
+ * @package   Phossa\Cache
+ * @author    Hong Zhang <phossa@126.com>
+ * @copyright 2015 phossa.com
+ * @license   http://mit-license.org/ MIT License
+ * @link      http://www.phossa.com/
  */
 /*# declare(strict_types=1); */
 
@@ -14,10 +19,10 @@ namespace Phossa\Cache\Misc;
  * Implementation of ErrorAwareInterface
  *
  * @trait
- * @package \Phossa\Cache
+ * @package Phossa\Cache
  * @author  Hong Zhang <phossa@126.com>
  * @see     \Phossa\Cache\Misc\ErrorAwareInterface
- * @version 1.0.0
+ * @version 1.0.8
  * @since   1.0.0 added
  */
 trait ErrorAwareTrait
@@ -74,9 +79,8 @@ trait ErrorAwareTrait
     }
 
     /**
-     * Flush error message and return true
+     * helper method, flush error message and return true
      *
-     * @param  void
      * @return bool
      * @access protected
      */
@@ -87,7 +91,7 @@ trait ErrorAwareTrait
     }
 
     /**
-     * Set error and return false
+     * helper method, set error and return false
      *
      * @param  string $message error message
      * @param  int $code (optional) error code

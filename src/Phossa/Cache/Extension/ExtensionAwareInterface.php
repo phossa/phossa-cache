@@ -1,37 +1,45 @@
 <?php
-/*
+/**
  * Phossa Project
  *
- * @see         http://www.phossa.com/
- * @copyright   Copyright (c) 2015 phossa.com
- * @license     http://mit-license.org/ MIT License
+ * PHP version 5.4
+ *
+ * @category  Package
+ * @package   Phossa\Cache
+ * @author    Hong Zhang <phossa@126.com>
+ * @copyright 2015 phossa.com
+ * @license   http://mit-license.org/ MIT License
+ * @link      http://www.phossa.com/
  */
 /*# declare(strict_types=1); */
 
 namespace Phossa\Cache\Extension;
 
+use Phossa\Cache\Misc\ErrorAwareInterface;
+
 /**
  * ExtensionAwareInterface
  *
  * @interface
- * @package \Phossa\Cache
+ * @package Phossa\Cache
  * @author  Hong Zhang <phossa@126.com>
- * @version 1.0.0
+ * @version 1.0.8
  * @since   1.0.0 added
+ * @since   1.0.8 removed setExtensions(), added setExtension()
  */
-interface ExtensionAwareInterface
+interface ExtensionAwareInterface extends ErrorAwareInterface
 {
     /**
      * Set extensions
      *
-     * @param  ExtensionInterface[] $extensions array of extensions/definitions
+     * @param  ExtensionInterface $extension
      * @return void
-     * @throws \Phossa\Cache\Exception\InvalidArgumentException
-     *         if not the valid extension found
+     * @throws \Phossa\Cache\Exception\DuplicationFoundException
+     *         if extension loaded twice
      * @access public
      * @api
      */
-    public function setExtensions(array $extensions);
+    public function setExtension(ExtensionInterface $extension);
 
     /**
      * Execute extensions at different extension stage.
@@ -49,18 +57,16 @@ interface ExtensionAwareInterface
      * @access public
      */
     public function runExtensions(
-        /*# string */ $stage, $item = null
+        /*# string */ $stage,
+        $item = null
     )/*# : bool */;
 
     /**
-     * Clear all extensions/methods and load default extensions
+     * Clear all extensions/methods
      *
-     * @param  bool $loadDefaults load default extensions also
      * @return void
      * @access public
      * @api
      */
-    public function clearExtensions(
-        /*# bool */ $loadDefaults = true
-    );
+    public function clearExtensions();
 }

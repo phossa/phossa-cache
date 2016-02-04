@@ -1,10 +1,15 @@
 <?php
-/*
+/**
  * Phossa Project
  *
- * @see         http://www.phossa.com/
- * @copyright   Copyright (c) 2015 phossa.com
- * @license     http://mit-license.org/ MIT License
+ * PHP version 5.4
+ *
+ * @category  Package
+ * @package   Phossa\Cache
+ * @author    Hong Zhang <phossa@126.com>
+ * @copyright 2015 phossa.com
+ * @license   http://mit-license.org/ MIT License
+ * @link      http://www.phossa.com/
  */
 /*# declare(strict_types=1); */
 
@@ -14,11 +19,11 @@ use Phossa\Cache\CachePoolInterface;
 use Phossa\Cache\CacheItemInterface;
 
 /**
- * Statistics collection extension
+ * Cache statistics collection extension
  *
- * NOT DONE YET!!
+ * NOT IMPLEMENTED YET
  *
- * @package \Phossa\Cache
+ * @package Phossa\Cache
  * @author  Hong Zhang <phossa@126.com>
  * @see     \Phossa\Cache\Extension\ExtensionAbstract
  * @version 1.0.0
@@ -31,7 +36,9 @@ class StatisticsExtension extends ExtensionAbstract
      */
     public function stagesHandling()/*# : array */
     {
-        return [ ExtensionStage::STAGE_POST_GET => 80 ];
+        return [
+            ExtensionStage::STAGE_POST_GET => 80
+        ];
     }
 
     /**
@@ -42,6 +49,5 @@ class StatisticsExtension extends ExtensionAbstract
         /*# string */ $stage,
         CacheItemInterface $item = null
     )/*# : bool */ {
-
     }
 }

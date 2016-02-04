@@ -1,10 +1,15 @@
 <?php
-/*
+/**
  * Phossa Project
  *
- * @see         http://www.phossa.com/
- * @copyright   Copyright (c) 2015 phossa.com
- * @license     http://mit-license.org/ MIT License
+ * PHP version 5.4
+ *
+ * @category  Package
+ * @package   Phossa\Cache
+ * @author    Hong Zhang <phossa@126.com>
+ * @copyright 2015 phossa.com
+ * @license   http://mit-license.org/ MIT License
+ * @link      http://www.phossa.com/
  */
 /*# declare(strict_types=1); */
 
@@ -16,18 +21,18 @@ use Phossa\Cache\Extension\ExtensionStage as ES;
 /**
  * Cache class which implements CachePoolInterface
  *
- * @package \Phossa\Cache
+ * @package Phossa\Cache
  * @author  Hong Zhang <phossa@126.com>
  * @see     \Phossa\Cache\CachePoolInterface
- * @version 1.0.0
+ * @version 1.0.8
  * @since   1.0.0 added
  */
 class CachePool implements CachePoolInterface
 {
     use Misc\LoggerAwareTrait,
-        Misc\SetPropertiesTrait,
         Driver\DriverAwareTrait,
-        Extension\ExtensionAwareTrait;
+        Extension\ExtensionAwareTrait,
+        \Phossa\Shared\Pattern\SetPropertiesTrait;
 
     /**
      * item factory method, signatures as follows
@@ -36,7 +41,7 @@ class CachePool implements CachePoolInterface
      *          string $key,
      *          CachePoolInterface $pool,
      *          array $configs = []
-     *     ): CacheItem
+     *     ): CacheItemInterface
      *
      * @var    callable
      * @access protected
@@ -54,30 +59,32 @@ class CachePool implements CachePoolInterface
     /**
      * Cache pool constructor
      *
-     * @param  array|Driver\DriverInterface $driver the driver
+     * @param  Driver\DriverInterface $driver the cache driver
      * @param  Extension\ExtensionInterface[] $extensions extensions
      * @param  array $configs (optional) cache pool configuration
-     * @throws Exception\InvalidArgumentException
-     *         if not valid driver or extensions found
+     * @throws Exception\DuplicationFoundException
+     *         if extension duplicated
      * @access public
      */
     public function __construct(
-        $driver = [],
+        Driver\DriverInterface $driver = null,
         array $extensions = [],
-        array $configs = []
+        array $configs    = []
     ) {
         // set configs
-        if ($configs) $this->setProperties($configs);
+        if (count($configs)) $this->setProperties($configs);
 
         // driver, if not set, use the FilesystemDriver
-        if (empty($driver)) $driver = [ 'className' => 'FilesystemDriver' ];
+        if (is_null($driver)) $driver = new Driver\FilesystemDriver();
         $this->setDriver($driver);
 
-        // clear & load default extensions
+        // clear & load default extension
         $this->clearExtensions();
 
         // load exteneral extensions
-        if ($extensions) $this->setExtensions($extensions);
+        foreach($extensions as $ext) {
+            $this->setExtension($ext);
+        }
 
         // run extensions STAGE_INIT
         $this->runExtensions(ES::STAGE_INIT);
@@ -86,7 +93,6 @@ class CachePool implements CachePoolInterface
     /**
      * Cache pool destructor
      *
-     * @param  void
      * @access public
      */
     public function __destruct()
@@ -151,7 +157,7 @@ class CachePool implements CachePoolInterface
         // after clear
         if (!$this->runExtensions(ES::STAGE_POST_CLEAR)) return false;
 
-        return true;
+        return $this->trueAndFlushError();
     }
 
     /**
@@ -176,7 +182,7 @@ class CachePool implements CachePoolInterface
         // after delete
         if (!$this->runExtensions(ES::STAGE_POST_DEL, $item)) return false;
 
-        return true;
+        return $this->trueAndFlushError();
     }
 
     /**
@@ -187,16 +193,15 @@ class CachePool implements CachePoolInterface
         foreach($keys as $key) {
             if (!$this->deleteItem($key)) return false;
         }
-        return true;
+        return $this->trueAndFlushError();
     }
 
     /**
      * {@inheritDoc}
      */
-    public function save(
-        \Psr\Cache\CacheItemInterface $item
-    )/*# : bool */ {
-        // extension may change $item
+    public function save(\Psr\Cache\CacheItemInterface $item)/*# : bool */
+    {
+        // extensions may change $item
         $clone = clone $item;
 
         // before save
@@ -213,7 +218,7 @@ class CachePool implements CachePoolInterface
         // after save
         if (!$this->runExtensions(ES::STAGE_POST_SAVE, $clone)) return false;
 
-        return true;
+        return $this->trueAndFlushError();
     }
 
     /**
@@ -239,7 +244,7 @@ class CachePool implements CachePoolInterface
         // after deferred
         if (!$this->runExtensions(ES::STAGE_POST_DEFER, $clone)) return false;
 
-        return true;
+        return $this->trueAndFlushError();
     }
 
     /**
@@ -261,7 +266,7 @@ class CachePool implements CachePoolInterface
         // after commit
         if (!$this->runExtensions(ES::STAGE_POST_COMMIT)) return false;
 
-        return true;
+        return $this->trueAndFlushError();
     }
 
     /**
@@ -270,12 +275,10 @@ class CachePool implements CachePoolInterface
      * @param  string $key item key
      * @return CacheItemInterface
      * @throws Exception\InvalidArgumentException
-     *         if $throwException is true and $key not a valid key
      * @access protected
      */
-    protected function createItem(
-        /*# string */ $key
-    )/*# : CacheItemInterface */ {
+    protected function createItem(/*# string */ $key)/*# : CacheItemInterface */
+    {
         // validate key first
         $this->validateKey($key);
 
@@ -284,7 +287,7 @@ class CachePool implements CachePoolInterface
             $func = $this->item_factory;
             $item = $func($key, $this, $this->item_config);
 
-        // default
+        // default CacheItem class
         } else {
             $item = new CacheItem($key, $this, $this->item_config);
         }
@@ -295,10 +298,9 @@ class CachePool implements CachePoolInterface
     /**
      * Validate key string
      *
-     * @param  string $key key to check
+     * @param  string &$key key to check
      * @return void
      * @throws Exception\InvalidArgumentException
-     *         if $throwException is true and $key not a valid key
      * @access protected
      */
     protected function validateKey(/*# string */ &$key)
@@ -311,7 +313,7 @@ class CachePool implements CachePoolInterface
 
         // throw exception
         throw new Exception\InvalidArgumentException(
-            Message::get(Message::CACHE_INVALID_KEY, (string) $key),
+            Message::get(Message::CACHE_INVALID_KEY, $key),
             Message::CACHE_INVALID_KEY
         );
     }
