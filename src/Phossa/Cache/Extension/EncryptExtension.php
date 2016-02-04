@@ -79,14 +79,16 @@ class EncryptExtension extends ExtensionAbstract
         /*# string */ $stage,
         CacheItemInterface $item = null
     )/*# : bool */ {
-        if ($stage === ExtensionStage::STAGE_POST_GET) {
-            if ($item->isHit()) {
-                $fnc = $this->decrypt;
+        if ($item instanceof CacheItemInterface) {
+            if ($stage === ExtensionStage::STAGE_POST_GET) {
+                if ($item->isHit()) {
+                    $fnc = $this->decrypt;
+                    $res = $fnc($item->get());
+                }
+            } else {
+                $fnc = $this->encrypt;
                 $res = $fnc($item->get());
             }
-        } else {
-            $fnc = $this->encrypt;
-            $res = $fnc($item->get());
         }
 
         if (isset($res)) {

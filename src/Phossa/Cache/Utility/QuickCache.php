@@ -121,11 +121,11 @@ class QuickCache extends \Phossa\Cache\CachePool
     protected function flatReference(array $reference)/*# : array */
     {
         reset($reference);
-        foreach($reference as $key => $value) {
+        foreach ($reference as $key => $value) {
             if (is_object($value)) {
                 $reference[$key] = get_class($value);
-            } else if (is_array($value)) {
-                $reference[$key] = $this->_flatReference($value);
+            } elseif (is_array($value)) {
+                $reference[$key] = $this->flatReference($value);
             }
         }
         ksort($reference);

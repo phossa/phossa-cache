@@ -115,13 +115,13 @@ trait ExtensionAwareTrait
         if (!isset($this->loaded[get_class($extension)])) {
             // stages handling
             $handles = $extension->stagesHandling();
-            foreach($handles as $stage => $priority) {
+            foreach ($handles as $stage => $priority) {
                 $this->extensions[$stage][$priority][] = $extension;
             }
 
             // register extension methods if any
             $methods = $extension->registerMethods();
-            foreach($methods as $func) {
+            foreach ($methods as $func) {
                 if (method_exists($extension, $func) &&
                     !isset($this->methods[$func])
                 ) {
@@ -163,13 +163,14 @@ trait ExtensionAwareTrait
         $this->sortExtensions($stage);
 
         // run each extensions in this stage
-        foreach($this->sorted[$stage] as $e) {
+        foreach ($this->sorted[$stage] as $e) {
             /* @var $ex ExtensionAbstract */
-            foreach($e as $ex) {
+            foreach ($e as $ex) {
                 if (!$ex($this, $stage, $item)) {
                     // failed, retrieve extension's error
                     return $this->falseAndSetError(
-                        $ex->getError(), $ex->getErrorCode()
+                        $ex->getError(),
+                        $ex->getErrorCode()
                     );
                 }
             }
@@ -208,7 +209,7 @@ trait ExtensionAwareTrait
 
             // current stage
             if (isset($this->extensions[$stage])) {
-                foreach($this->extensions[$stage] as $p => $e) {
+                foreach ($this->extensions[$stage] as $p => $e) {
                     $sorted[$stage][$p] = $e;
                 }
             }
@@ -216,7 +217,7 @@ trait ExtensionAwareTrait
             // process the special STAGE_ALL
             $all = ExtensionStage::STAGE_ALL;
             if (isset($this->extensions[$all])) {
-                foreach($this->extensions[$all] as $p => $e) {
+                foreach ($this->extensions[$all] as $p => $e) {
                     $sorted[$stage][$p] = isset($sorted[$stage][$p]) ?
                         (array_merge($sorted[$stage][$p], $e)) :
                         $e;
@@ -224,7 +225,9 @@ trait ExtensionAwareTrait
             }
 
             // sort extensions by priority
-            if ($sorted[$stage]) ksort($sorted[$stage]);
+            if (count($sorted[$stage])) {
+                ksort($sorted[$stage]);
+            }
         }
     }
 }

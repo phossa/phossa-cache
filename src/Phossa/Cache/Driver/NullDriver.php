@@ -37,7 +37,7 @@ class NullDriver extends DriverAbstract
      */
     public function get(/*# string */ $key)/*# : string */
     {
-        return serialize(NULL);
+        return serialize(null);
     }
 
     /**

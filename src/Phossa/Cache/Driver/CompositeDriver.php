@@ -113,19 +113,23 @@ class CompositeDriver extends DriverAbstract
 
         // default tester, will write item to both front/back cache
         if (!is_callable($this->tester)) {
-            $this->tester = function() { return true; };
+            $this->tester = function () {
+                return true;
+            };
         }
     }
 
     /**
      * Either end get ok is ok
-     * 
+     *
      * {@inheritDoc}
      */
     public function get(/*# string */ $key)/*# : string */
     {
         // try front-end cache first
-        if ($this->frontHas($key)) return $this->front->get($key);
+        if ($this->frontHas($key)) {
+            return $this->front->get($key);
+        }
 
         // get from backend cache
         return $this->back->get($key);
@@ -181,7 +185,7 @@ class CompositeDriver extends DriverAbstract
     public function clear()/*# : bool */
     {
         $ends = [ $this->front, $this->back ];
-        foreach($ends as $end) {
+        foreach ($ends as $end) {
             if (!$end->clear()) {
                 return $this->falseAndSetError(
                     $end->getError(),
@@ -200,7 +204,7 @@ class CompositeDriver extends DriverAbstract
     public function delete(/*# string */ $key)/*# : bool */
     {
         $ends = [ $this->front, $this->back ];
-        foreach($ends as $end) {
+        foreach ($ends as $end) {
             if (!$end->delete($key)) {
                 return $this->falseAndSetError(
                     $end->getError(),
@@ -237,7 +241,7 @@ class CompositeDriver extends DriverAbstract
         $ends = [ $this->front, $this->back ];
         $res  = false;
 
-        foreach($ends as $end) {
+        foreach ($ends as $end) {
             // commit failed, set error
             if (!$end->commit()) {
                 $this->setError(
@@ -262,7 +266,7 @@ class CompositeDriver extends DriverAbstract
     public function purge(/*# int */ $maxlife)/*# : bool */
     {
         $ends = [ $this->front, $this->back ];
-        foreach($ends as $end) {
+        foreach ($ends as $end) {
             if (!$end->purge($maxlife)) {
                 return $this->falseAndSetError(
                     $end->getError(),

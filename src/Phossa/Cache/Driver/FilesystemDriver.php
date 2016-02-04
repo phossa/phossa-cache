@@ -125,7 +125,9 @@ class FilesystemDriver extends DriverAbstract
     public function has(/*# string */ $key)/*# : int */
     {
         $file = $this->getPath($key);
-        if (file_exists($file)) return filemtime($file);
+        if (file_exists($file)) {
+            return filemtime($file);
+        }
         return 0;
     }
 
@@ -145,7 +147,9 @@ class FilesystemDriver extends DriverAbstract
         $file = $this->getPath($key);
 
         // delete hierachy directory
-        if (is_dir($file)) return $this->deleteFromDir($file, 0, true);
+        if (is_dir($file)) {
+            return $this->deleteFromDir($file, 0, true);
+        }
 
         // file
         if (file_exists($file) && !unlink($file)) {
@@ -285,11 +289,13 @@ class FilesystemDriver extends DriverAbstract
         $hash = $this->file_pref . $md5 . $this->file_suff;
 
         // no hash
-        if (!$this->hash_level) return $hash;
+        if (!$this->hash_level) {
+            return $hash;
+        }
 
         // hash
         $pref = '';
-        for($i = 0; $i < $this->hash_level; $i++) {
+        for ($i = 0; $i < $this->hash_level; $i++) {
             $pref .= $md5[$i] . '/';
         }
         return $pref . $hash;
@@ -313,7 +319,9 @@ class FilesystemDriver extends DriverAbstract
         if (is_dir($dir)) {
             $files = scandir($dir);
             foreach ($files as $file) {
-                if ($file == "." || $file == "..") continue;
+                if ($file == "." || $file == "..") {
+                    continue;
+                }
                 $sub = $dir . DIRECTORY_SEPARATOR . $file;
                 $res = true;
                 if (is_dir($sub)) {
@@ -330,7 +338,12 @@ class FilesystemDriver extends DriverAbstract
                     );
                 }
             }
-            if ($removeDir) @rmdir($dir);
+            if ($removeDir && ! @rmdir($dir)) {
+                return $this->falseAndSetError(
+                    Message::get(Message::CACHE_FAIL_DELETE, $dir),
+                    Message::CACHE_FAIL_DELETE
+                );
+            }
         }
         return true;
     }

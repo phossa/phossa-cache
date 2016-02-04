@@ -72,17 +72,21 @@ class CachePool implements CachePoolInterface
         array $configs    = []
     ) {
         // set configs
-        if (count($configs)) $this->setProperties($configs);
+        if (count($configs)) {
+            $this->setProperties($configs);
+        }
 
         // driver, if not set, use the FilesystemDriver
-        if (is_null($driver)) $driver = new Driver\FilesystemDriver();
+        if (is_null($driver)) {
+            $driver = new Driver\FilesystemDriver();
+        }
         $this->setDriver($driver);
 
         // clear & load default extension
         $this->clearExtensions();
 
         // load exteneral extensions
-        foreach($extensions as $ext) {
+        foreach ($extensions as $ext) {
             $this->setExtension($ext);
         }
 
@@ -120,7 +124,7 @@ class CachePool implements CachePoolInterface
         array $keys = array()
     ) {
         $result = [];
-        foreach($keys as $key) {
+        foreach ($keys as $key) {
             $result[$key] = $this->getItem($key);
         }
         return $result;
@@ -144,7 +148,9 @@ class CachePool implements CachePoolInterface
     public function clear()/*# : bool */
     {
         // before clear
-        if (!$this->runExtensions(ES::STAGE_PRE_CLEAR)) return false;
+        if (!$this->runExtensions(ES::STAGE_PRE_CLEAR)) {
+            return false;
+        }
 
         // clear the pool
         if (!$this->driver->clear()) {
@@ -155,7 +161,9 @@ class CachePool implements CachePoolInterface
         }
 
         // after clear
-        if (!$this->runExtensions(ES::STAGE_POST_CLEAR)) return false;
+        if (!$this->runExtensions(ES::STAGE_POST_CLEAR)) {
+            return false;
+        }
 
         return $this->trueAndFlushError();
     }
@@ -169,7 +177,9 @@ class CachePool implements CachePoolInterface
         $item = $this->createItem($key);
 
         // before delete
-        if (!$this->runExtensions(ES::STAGE_PRE_DEL, $item)) return false;
+        if (!$this->runExtensions(ES::STAGE_PRE_DEL, $item)) {
+            return false;
+        }
 
         // delete from pool
         if (!$this->driver->delete($item->getKey())) {
@@ -180,7 +190,9 @@ class CachePool implements CachePoolInterface
         }
 
         // after delete
-        if (!$this->runExtensions(ES::STAGE_POST_DEL, $item)) return false;
+        if (!$this->runExtensions(ES::STAGE_POST_DEL, $item)) {
+            return false;
+        }
 
         return $this->trueAndFlushError();
     }
@@ -190,8 +202,10 @@ class CachePool implements CachePoolInterface
      */
     public function deleteItems(array $keys)/*# : bool */
     {
-        foreach($keys as $key) {
-            if (!$this->deleteItem($key)) return false;
+        foreach ($keys as $key) {
+            if (!$this->deleteItem($key)) {
+                return false;
+            }
         }
         return $this->trueAndFlushError();
     }
@@ -205,7 +219,9 @@ class CachePool implements CachePoolInterface
         $clone = clone $item;
 
         // before save
-        if (!$this->runExtensions(ES::STAGE_PRE_SAVE, $clone)) return false;
+        if (!$this->runExtensions(ES::STAGE_PRE_SAVE, $clone)) {
+            return false;
+        }
 
         // write to the pool
         if (!$this->driver->save($clone)) {
@@ -216,7 +232,9 @@ class CachePool implements CachePoolInterface
         }
 
         // after save
-        if (!$this->runExtensions(ES::STAGE_POST_SAVE, $clone)) return false;
+        if (!$this->runExtensions(ES::STAGE_POST_SAVE, $clone)) {
+            return false;
+        }
 
         return $this->trueAndFlushError();
     }
@@ -231,7 +249,9 @@ class CachePool implements CachePoolInterface
         $clone = clone $item;
 
         // before deferred
-        if (!$this->runExtensions(ES::STAGE_PRE_DEFER, $clone)) return false;
+        if (!$this->runExtensions(ES::STAGE_PRE_DEFER, $clone)) {
+            return false;
+        }
 
         // write to the pool
         if (!$this->driver->saveDeferred($clone)) {
@@ -242,7 +262,9 @@ class CachePool implements CachePoolInterface
         }
 
         // after deferred
-        if (!$this->runExtensions(ES::STAGE_POST_DEFER, $clone)) return false;
+        if (!$this->runExtensions(ES::STAGE_POST_DEFER, $clone)) {
+            return false;
+        }
 
         return $this->trueAndFlushError();
     }
@@ -253,7 +275,9 @@ class CachePool implements CachePoolInterface
     public function commit()/*# : bool */
     {
         // before commit
-        if (!$this->runExtensions(ES::STAGE_PRE_COMMIT)) return false;
+        if (!$this->runExtensions(ES::STAGE_PRE_COMMIT)) {
+            return false;
+        }
 
         // commit to pool
         if (!$this->driver->commit()) {
@@ -264,7 +288,9 @@ class CachePool implements CachePoolInterface
         }
 
         // after commit
-        if (!$this->runExtensions(ES::STAGE_POST_COMMIT)) return false;
+        if (!$this->runExtensions(ES::STAGE_POST_COMMIT)) {
+            return false;
+        }
 
         return $this->trueAndFlushError();
     }

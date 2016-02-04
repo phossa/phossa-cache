@@ -126,7 +126,9 @@ class CacheItem implements CacheItemInterface
     public function get()
     {
         // get/set already ?
-        if ($this->done) return $this->value;
+        if ($this->done) {
+            return $this->value;
+        }
 
         // check pool has item
         $this->done = true;
@@ -198,7 +200,9 @@ class CacheItem implements CacheItemInterface
         $this->value = $value;
 
         // set default expire
-        if ($this->expire === 0) $this->expiresAfter($this->ttl);
+        if ($this->expire === 0) {
+            $this->expiresAfter($this->ttl);
+        }
 
         return $this;
     }
@@ -210,7 +214,7 @@ class CacheItem implements CacheItemInterface
     {
         if ($expiration === null) {
             $this->expire = time() + $this->ttl;
-        } else if ($expiration instanceof \DateTime) {
+        } elseif ($expiration instanceof \DateTime) {
             /* @var $expiration \DateTime */
             $this->expire = $expiration->getTimestamp();
         }
@@ -222,13 +226,14 @@ class CacheItem implements CacheItemInterface
      */
     public function expiresAfter($time)/*# : CacheItemInterface */
     {
-        if (is_int($time)) {
-        } else if ($time instanceof \DateInterval) {
-            $time = (int) $time->format("%s");
-        } else {
-            $time = $this->ttl;
+        if (!is_numeric($time)) {
+            if ($time instanceof \DateInterval) {
+                $time = $time->format("%s");
+            } else {
+                $time = $this->ttl;
+            }
         }
-        $this->expire = time() + $time;
+        $this->expire = time() + (int) $time;
 
         return $this;
     }

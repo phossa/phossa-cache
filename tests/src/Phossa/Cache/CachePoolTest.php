@@ -25,7 +25,6 @@ class CachePoolTest extends \PHPUnit_Framework_TestCase
         ]);
 
         $this->object = new CachePool($driver);
-        $this->object->clear();
     }
 
     /**
@@ -34,6 +33,7 @@ class CachePoolTest extends \PHPUnit_Framework_TestCase
      */
     protected function tearDown()
     {
+        $this->object->clear();
     }
 
     /**

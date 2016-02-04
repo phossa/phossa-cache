@@ -33,7 +33,7 @@ trait DriverAwareTrait
     /**
      * cache driver
      *
-     * @var    DriverAbstract
+     * @var    DriverInterface
      * @access protected
      */
     protected $driver;

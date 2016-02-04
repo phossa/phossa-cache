@@ -75,25 +75,27 @@ class TaggableExtension extends ExtensionAbstract
         /*# string */ $stage,
         CacheItemInterface $item = null
     )/*# : bool */ {
-        // get item's tags
-        $tags = $item->getTags();
+        if ($item instanceof CacheItemInterface) {
+            // get item's tags
+            $tags = $item->getTags();
 
-        // record to a $tagItem (one tag one tagItem)
-        if (count($tags)) {
-            $key = $item->getKey();
-            foreach($tags as $tag) {
-                $tagKey  = $this->getTagKey($tag);
-                $tagItem = $cache->getItem($tagKey);
-                if ($tagItem->isHit()) {
-                    $keyArray = $tagItem->get();
-                    $keyArray[$key] = true;
-                } else {
-                    $keyArray = [ $key => true ];
+            // record to a $tagItem (one tag one tagItem)
+            if (count($tags)) {
+                $key = $item->getKey();
+                foreach ($tags as $tag) {
+                    $tagKey  = $this->getTagKey($tag);
+                    $tagItem = $cache->getItem($tagKey);
+                    if ($tagItem->isHit()) {
+                        $keyArray = $tagItem->get();
+                        $keyArray[$key] = true;
+                    } else {
+                        $keyArray = [ $key => true ];
+                    }
+
+                    $tagItem->set($keyArray);
+                    $tagItem->expiresAfter($this->tag_life); // one year
+                    $cache->save($tagItem);
                 }
-
-                $tagItem->set($keyArray);
-                $tagItem->expiresAfter($this->tag_life); // one year
-                $cache->save($tagItem);
             }
         }
 
@@ -133,14 +135,18 @@ class TaggableExtension extends ExtensionAbstract
         // read array of keys from $tagItem
         if ($tagItem->isHit()) {
             $keyArray = $tagItem->get();
-            foreach($keyArray as $k => $v) {
-                if ($cache->deleteItem($k)) unset($keyArray[$k]);
+            foreach (array_keys($keyArray) as $key) {
+                if ($cache->deleteItem($key)) {
+                    unset($keyArray[$key]);
+                }
             }
 
             // get error
-            if ($keyArray) {
-                $error = $cache->getError();
-                $ecode = $cache->getErrorCode();
+            if (count($keyArray)) {
+                $this->setError(
+                    $cache->getError(),
+                    $cache->getErrorCode()
+                );
             }
 
             // update tagItem
@@ -148,7 +154,9 @@ class TaggableExtension extends ExtensionAbstract
             $tagItem->expiresAfter($this->tag_life); // one year
             $cache->save($tagItem);
 
-            if ($keyArray) return $this->falseAndSetError($error, $ecode);
+            if (count($keyArray)) {
+                return false;
+            }
         }
 
         return $this->trueAndFlushError();

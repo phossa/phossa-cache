@@ -52,23 +52,29 @@ class SerializeExtension extends ExtensionAbstract
         /*# string */ $stage,
         CacheItemInterface $item = null
     )/*# : bool */ {
-        if ($stage === ExtensionStage::STAGE_POST_GET) {
-            if ($item->isHit()) $res = @unserialize($item->get());
-        } else {
-            $res = @serialize($item->get());
+        if ($item instanceof CacheItemInterface) {
+            if ($stage === ExtensionStage::STAGE_POST_GET) {
+                if ($item->isHit()) {
+                    $res = @unserialize($item->get());
+                }
+            } else {
+                $res = @serialize($item->get());
+            }
         }
 
         if (isset($res)) {
             if ($res === false) {
                 return $this->falseAndSetError(
                     Message::get(
-                        Message::CACHE_FAIL_SERIALIZE, $item->getKey()
+                        Message::CACHE_FAIL_SERIALIZE,
+                        $item->getKey()
                     ),
                     Message::CACHE_FAIL_SERIALIZE
                 );
             }
             $item->set($res);
         }
+        
         return true;
     }
 }

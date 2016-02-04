@@ -69,17 +69,19 @@ class DistributeMissExtension extends ExtensionAbstract
         CacheItemInterface $item = null
     )/*# : bool */ {
         // distribution
-        $d = $this->distribution;
+        $dis = $this->distribution;
 
-        // expire ttl
-        $ttl = $item->getExpiration()->getTimestamp() - time();
+        if ($item instanceof CacheItemInterface) {
+            // expire ttl
+            $ttl = $item->getExpiration()->getTimestamp() - time();
 
-        // percentage
-        $percent = (rand(0, $d * 2) - $d) * 0.001;
+            // percentage
+            $percent = (rand(0, $dis * 2) - $dis) * 0.001;
 
-        // new expire ttl
-        $new_ttl = (int) round($ttl + $ttl * $percent);
-        $item->expiresAfter($new_ttl);
+            // new expire ttl
+            $new_ttl = (int) round($ttl + $ttl * $percent);
+            $item->expiresAfter($new_ttl);
+        }
 
         return true;
     }

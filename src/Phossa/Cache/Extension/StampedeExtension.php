@@ -84,7 +84,7 @@ class StampedeExtension extends ExtensionAbstract
         /*# string */ $stage,
         CacheItemInterface $item = null
     )/*# : bool */ {
-        if ($item->isHit()) {
+       if ($item instanceof CacheItemInterface && $item->isHit()) {
             // time left
             $left = $item->getExpiration()->getTimestamp() - time();
 
@@ -92,9 +92,10 @@ class StampedeExtension extends ExtensionAbstract
                 rand(1, $this->divisor) <= $this->probability
             ) {
                 // log message
-                $cache->log('notice', Message::get(
-                    Message::CACHE_STAMPEDE_EXT, $item->getKey()
-                ));
+                $cache->log(
+                    'notice',
+                    Message::get(Message::CACHE_STAMPEDE_EXT,$item->getKey())
+                );
 
                 // revert to miss
                 return $item->setHit(false);
