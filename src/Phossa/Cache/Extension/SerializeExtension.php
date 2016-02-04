@@ -60,21 +60,21 @@ class SerializeExtension extends ExtensionAbstract
             } else {
                 $res = @serialize($item->get());
             }
+
+            if (isset($res)) {
+                if ($res === false) {
+                    return $this->falseAndSetError(
+                        Message::get(
+                            Message::CACHE_FAIL_SERIALIZE,
+                            $item->getKey()
+                        ),
+                        Message::CACHE_FAIL_SERIALIZE
+                    );
+                }
+                $item->set($res);
+            }
         }
 
-        if (isset($res)) {
-            if ($res === false) {
-                return $this->falseAndSetError(
-                    Message::get(
-                        Message::CACHE_FAIL_SERIALIZE,
-                        $item->getKey()
-                    ),
-                    Message::CACHE_FAIL_SERIALIZE
-                );
-            }
-            $item->set($res);
-        }
-        
         return true;
     }
 }

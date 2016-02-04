@@ -89,22 +89,22 @@ class EncryptExtension extends ExtensionAbstract
                 $fnc = $this->encrypt;
                 $res = $fnc($item->get());
             }
-        }
 
-        if (isset($res)) {
-            // encrypt/decrypt failed
-            if ($res === false) {
-                return $this->falseAndSetError(
-                    Message::get(
-                        Message::CACHE_FAIL_ENCRYPT,
-                        $item->getKey()
-                    ),
-                    Message::CACHE_FAIL_ENCRYPT
-                );
+            if (isset($res)) {
+                // encrypt/decrypt failed
+                if ($res === false) {
+                    return $this->falseAndSetError(
+                        Message::get(
+                            Message::CACHE_FAIL_ENCRYPT,
+                            $item->getKey()
+                        ),
+                        Message::CACHE_FAIL_ENCRYPT
+                    );
+                }
+
+                // set to new string value
+                $item->set($res);
             }
-
-            // set to new string value
-            $item->set($res);
         }
 
         return true;

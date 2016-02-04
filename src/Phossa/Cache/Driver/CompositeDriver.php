@@ -46,7 +46,7 @@ class CompositeDriver extends DriverAbstract
     /**
      * Front end driver
      *
-     * @var    DriverAbstract
+     * @var    DriverInterface
      * @access protected
      */
     protected $front;
@@ -54,7 +54,7 @@ class CompositeDriver extends DriverAbstract
     /**
      * Backend driver
      *
-     * @var    DriverAbstract
+     * @var    DriverInterface
      * @access protected
      */
     protected $back;

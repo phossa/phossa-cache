@@ -75,7 +75,7 @@ Features
     /*
      * construct the driver manually
      */
-    $driver = new \Phossa\Cache\Driver\FilesystemDriver([
+    $driver = new Driver\FilesystemDriver([
         'hash_level'    => 1,
         'file_pref'     => 'cache.',
         'dir_root'      => '/var/tmp/cache',
@@ -102,7 +102,7 @@ Features
         'dir_root' => '/var/tmp/cache'
     ]));
 
-    $cache = new \Phossa\Cache\CachePool($driver);
+    $cache = new CachePool($driver);
     ```
 
   - **CompositeDriver**
@@ -157,7 +157,7 @@ Features
   /*
    * the third argument is used for configuring CachePool
    */
-  $cache = new \Phossa\Cache\CachePool([], [],
+  $cache = new CachePool($driver, [],
       'logger' => $psrLogger
   );
   $cache->log('info', 'this is an info');
@@ -171,7 +171,7 @@ Features
   /*
    * create cache pool, exceptions may thrown here
    */
-  $cache = new \Phossa\Cache\CachePool();
+  $cache = new CachePool();
   $cache->setLogger($psrLogger);
 
   $item = $cache->getItem('widget_list');
@@ -207,7 +207,7 @@ Usage
      * use the default FilesystemDriver which also set default cache
      * directory to sys_get_temp_dir() .'/cache'
      */
-    $cache = new \Phossa\Cache\CachePool();
+    $cache = new CachePool();
 
     $item = $cache->getItem('widget_list');
     if (!$item->isHit()) {
@@ -227,6 +227,8 @@ Usage
         'file_suff'     => '.txt',   // cache file suffix
         'dir_root'      => '/var/tmp/cache' // reset cache root
     ]);
+
+    $cache = new CachePool($driver);
     ```
 
 - Use extensions
@@ -236,7 +238,7 @@ Usage
      * SerializeExtension is the default ext, always used.
      * Second argument is an array of ExtensionInterface or config array
      */
-    $cache = new \Phossa\Cache\CachePool(
+    $cache = new CachePool(
         $driver,
         [
             new Extension\BypassExtension(),
