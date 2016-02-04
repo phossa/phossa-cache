@@ -15,8 +15,6 @@
 
 namespace Phossa\Cache\Driver;
 
-use Phossa\Cache\Message\Message;
-
 /**
  * Abstract driver class implementing DriverInterface
  *

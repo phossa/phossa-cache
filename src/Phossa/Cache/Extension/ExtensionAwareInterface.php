@@ -25,7 +25,7 @@ use Phossa\Cache\Misc\ErrorAwareInterface;
  * @author  Hong Zhang <phossa@126.com>
  * @version 1.0.8
  * @since   1.0.0 added
- * @since   1.0.8 removed setExtensions(), added setExtension()
+ * @since   1.0.8 removed setExtensions(), added addExtension()
  */
 interface ExtensionAwareInterface extends ErrorAwareInterface
 {
@@ -39,7 +39,7 @@ interface ExtensionAwareInterface extends ErrorAwareInterface
      * @access public
      * @api
      */
-    public function setExtension(ExtensionInterface $extension);
+    public function addExtension(ExtensionInterface $extension);
 
     /**
      * Execute extensions at different extension stage.

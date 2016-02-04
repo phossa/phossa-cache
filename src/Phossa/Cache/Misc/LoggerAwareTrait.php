@@ -51,7 +51,7 @@ trait LoggerAwareTrait
         /*# string */ $level,
         /*# string */ $message
     ) {
-        if ($this->logger) {
+        if ($this->logger instanceof LoggerInterface) {
             $this->logger->log($level, $message);
         } else {
             $skip = [ 'debug', 'info' ];

@@ -1,4 +1,11 @@
-# Introduction
+# phossa-cache
+[![Build Status](https://travis-ci.org/phossa/phossa-cache.svg?branch=master)](https://travis-ci.org/phossa/phossa-cache.svg?branch=master)
+[![HHVM Status](http://hhvm.h4cc.de/badge/phossa/phossa-cache.svg)](http://hhvm.h4cc.de/package/phossa/phossa-cache)
+[![Latest Stable Version](https://poser.pugx.org/phossa/phossa-cache/v/stable)](https://packagist.org/packages/phossa/phossa-cache)
+[![License](https://poser.pugx.org/phossa/phossa-cache/license)](https://packagist.org/packages/phossa/phossa-cache)
+
+Introduction
+---
 
 Phossa-cache is a PSR-6 compliant caching package. It supports various drivers
 and useful features like bypass, encrypt, stampede protection, garbage collect,
@@ -7,7 +14,8 @@ taggable item etc.
 More information about [PSR-6](http://www.php-fig.org/psr/psr-6/) and
 [PSR-6 Meta](http://www.php-fig.org/psr/psr-6/meta/)
 
-# Installation
+Installation
+---
 
 Install via the `composer` utility.
 
@@ -15,14 +23,21 @@ Install via the `composer` utility.
 composer require "phossa/phossa-cache=1.*"
 ```
 
-# Features
+or add the following lines to your `composer.json`
+
+```json
+{
+    "require": {
+       "phossa/phossa-cache": "^1.0.8"
+    }
+}
+```
+
+Features
+---
 
 - Fully PSR-6 compliant. Maybe the best PSR-6 caching package you will find
   at github at this time.
-
-- Support PHP 5.4+.
-
-- PHP7 ready for return type declarations and argument type declarations.
 
 - Support all serializable PHP datatypes.
 
@@ -51,10 +66,10 @@ composer require "phossa/phossa-cache=1.*"
     The filesystem driver stores cached item in filesystem. It stores cached
     items in a md5-filename flat file. Configurable settings are
 
-    - 'dir_root': the base directory for the filesystem cache
-    - 'hash_level': hashed subdirectory level. default to 2
-    - 'file_pref': cached item filename prefix
-    - 'file_suff': cached item filename suffix
+    - `dir_root`: the base directory for the filesystem cache
+    - `hash_level`: hashed subdirectory level. default to 2
+    - `file_pref`: cached item filename prefix
+    - `file_suff`: cached item filename suffix
 
     ```php
     /*
@@ -77,18 +92,19 @@ composer require "phossa/phossa-cache=1.*"
     The `NullDriver` is the final fallback for all other drivers.
 
     ```php
-    /*
-     * set the driver and the fallback driver
-     */
-    $cache = new \Phossa\Cache\CachePool([
-        'className'     => 'MemcacheDriver',
-        'server'        => [ '127.0.0.1', 11211 ],
-        'fallback'      => [
-            'className' => 'FilesystemDriver',
-            'dir_root'  => '/var/tmp/cache',
-        ]
+    // default memcache driver
+    $driver = new Driver\MemcacheDriver([
+        'server' => [ '127.0.0.1', 11211 ]
     ]);
+
+    // set a fallback filesystem driver
+    $driver->setFallback(new Driver\FilesystemDriver([
+        'dir_root' => '/var/tmp/cache'
+    ]));
+
+    $cache = new \Phossa\Cache\CachePool($driver);
     ```
+
   - **CompositeDriver**
 
     The `CompositeDriver` consists of two drivers, the front-end driver and
@@ -100,23 +116,28 @@ composer require "phossa/phossa-cache=1.*"
     /*
      * set the composite driver
      */
-    $cache = new \Phossa\Cache\CachePool([
-        'className'     => 'CompositeDriver',
-        'front'         => [
-            'className'     => 'MemcacheDriver',
-            'server'        => [ '127.0.0.1', 11211 ]
-        ],
-        'back'          => [
-            'className' => 'FilesystemDriver',
-            'dir_root'  => '/var/tmp/cache'
-        ],
-        // if size > 10k, stores at backend only
-        'tester'        => function($item) {
-            if (strlen($item->get()) > 10240) return false;
-            return true;
-        }
-    ]);
+    $driver = new Driver\CompositeDriver(
+        // front-end driver
+        new Driver\MemcacheDriver([
+            'server' => [ '127.0.0.1', 11211 ]
+        ]),
+
+        // backend driver
+        new Driver\FilesystemDriver([
+            'dir_root' => '/var/tmp/cache'
+        ]),
+
+        // other settings
+        [
+            // if size > 10k, stores at backend only
+            'tester' => function($item) {
+                if (strlen($item->get()) > 10240) return false;
+                return true;
+            }
+        ]
+    );
     ```
+
 - **Logging**
 
   The phossa-cache supports psr-3 compliant logger. Also provides a `log()`
@@ -172,9 +193,14 @@ composer require "phossa/phossa-cache=1.*"
   Messages are in `Message\Message.php`. I18n is possible. See phossa-shared
   package for detail.
 
-# Usage
+- Support PHP 5.4+, PHP 7.0, HHVM.
 
-- The simplest usage
+- PHP7 ready for return type declarations and argument type declarations.
+
+Usage
+--
+
+- The simple usage
 
     ```php
     /*
@@ -191,18 +217,15 @@ composer require "phossa/phossa-cache=1.*"
     }
     $widget_list = $item->get();
     ```
+
 - Configure the driver
 
     ```php
-    /*
-     * the first argument is a DriverInterface or driver config array
-     */
-    $cache = new \Phossa\Cache\CachePool([
-        'className'     => 'FilesystemDriver',
+    $driver = new Driver\FilesystemDriver([
         'hash_level'    => 1, // subdirectory hash levels
         'file_pref'     => 'cache.', // cache file prefix
         'file_suff'     => '.txt',   // cache file suffix
-        'dir_root'      => '/var/tmp/cache', // reset cache root
+        'dir_root'      => '/var/tmp/cache' // reset cache root
     ]);
     ```
 
@@ -214,12 +237,19 @@ composer require "phossa/phossa-cache=1.*"
      * Second argument is an array of ExtensionInterface or config array
      */
     $cache = new \Phossa\Cache\CachePool(
-        [],
+        $driver,
         [
-            [ 'className' => 'BypassExtension' ],
-            [ 'className' => 'StampedeExtension', 'probability' => 80 ]
+            new Extension\BypassExtension(),
+            new Extension\StampedeExtension(['probability' => 80 ])
         ]
-    ]);
+    );
+    ```
+
+  or `addExtension()`
+
+    ```php
+    $cache = new CachePool($driver);
+    $cache->addExtension(new Extension\BypassExtension());
     ```
 
 - Hierarchal cache support
@@ -235,15 +265,20 @@ composer require "phossa/phossa-cache=1.*"
     $cache->deleteItem('mydomain/host1/');
     ```
 
-# Version
+Version
+---
+
 1.0.8
 
-# Dependencies
+Dependencies
+---
 
 - PHP >= 5.4.0
 - phossa/phossa-shared 1.0.6
 - psr/cache 1.*
 - psr/log 1.*
 
-# License
+License
+---
+
 [MIT License](http://spdx.org/licenses/MIT)

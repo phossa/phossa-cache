@@ -34,7 +34,7 @@ use Phossa\Cache\Message\Message;
  *     ]);
  *
  *     // enable commit extension
- *     $cache->setExtension($commit);
+ *     $cache->addExtension($commit);
  * </code>
  *
  * @package Phossa\Cache

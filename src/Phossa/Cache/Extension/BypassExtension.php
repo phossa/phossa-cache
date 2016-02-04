@@ -35,7 +35,7 @@ use Phossa\Cache\Message\Message;
  *     );
  *
  *     // enable bypass extension with $cache
- *     $cache->setExtension($bypass);
+ *     $cache->addExtension($bypass);
  * </code>
  *
  * @package Phossa\Cache

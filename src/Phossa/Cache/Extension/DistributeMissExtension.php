@@ -29,7 +29,7 @@ use Phossa\Cache\CacheItemInterface;
  *     ]);
  *
  *     // enable this ext
- *     $cache->setExtension($distribute);
+ *     $cache->addExtension($distribute);
  * </code>
  *
  * @package Phossa\Cache

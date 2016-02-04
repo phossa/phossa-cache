@@ -87,7 +87,7 @@ class CachePool implements CachePoolInterface
 
         // load exteneral extensions
         foreach ($extensions as $ext) {
-            $this->setExtension($ext);
+            $this->addExtension($ext);
         }
 
         // run extensions STAGE_INIT

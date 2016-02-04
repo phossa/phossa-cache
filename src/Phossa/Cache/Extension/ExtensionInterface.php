@@ -49,7 +49,7 @@ interface ExtensionInterface
      *     $cache = new CachePool();
      *
      *     // load extension TaggableExtension
-     *     $cache->setExtensions([ new TaggableExtension() ]);
+     *     $cache->addExtension(new TaggableExtension());
      *
      *     // now we can use 'clearByTag'
      *     $cache->clearByTag('sports');

@@ -26,7 +26,7 @@ use Phossa\Cache\CacheItemInterface;
  * e.g.
  * <code>
  *     $taggable = new Extension\TaggableExtension();
- *     $cache->setExtension($taggable);
+ *     $cache->addExtension($taggable);
  *     $cache->clearByTag('bingo');
  * </code>
  *

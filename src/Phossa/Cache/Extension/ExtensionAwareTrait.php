@@ -27,7 +27,7 @@ use Phossa\Cache\Exception;
  * @see     \Phossa\Cache\Extension\ExtensionAwareInterface
  * @version 1.0.8
  * @since   1.0.0 added
- * @since   1.0.8 removed setExtensions(), added setExtension()
+ * @since   1.0.8 removed setExtensions(), added addExtension()
  */
 trait ExtensionAwareTrait
 {
@@ -78,7 +78,7 @@ trait ExtensionAwareTrait
      *     $cache = new \Phossa\Cache\CachePool();
      *
      *     // taggableExtension registers a 'clearByTag' method
-     *     $cache->setExtension(new Extension\TaggableExtension());
+     *     $cache->addExtension(new Extension\TaggableExtension());
      *
      *     // method
      *     $cache->clearByTag('bingo');
@@ -109,7 +109,7 @@ trait ExtensionAwareTrait
     /**
      * {@inheritDoc}
      */
-    public function setExtension(ExtensionInterface $extension)
+    public function addExtension(ExtensionInterface $extension)
     {
         // extension not loaded yet
         if (!isset($this->loaded[get_class($extension)])) {
@@ -189,7 +189,7 @@ trait ExtensionAwareTrait
         $this->methods    = $this->loaded = [];
 
         // load MUST HAVE extension
-        $this->setExtension(new SerializeExtension());
+        $this->addExtension(new SerializeExtension());
     }
 
     /**

@@ -204,11 +204,11 @@ class CachePoolTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers Phossa\Cache\CachePool::setExtension
+     * @covers Phossa\Cache\CachePool::addExtension
      */
-    public function testSetExtensions()
+    public function testAddExtension()
     {
-        $this->object->setExtension(new Extension\CommitDeferredExtension);
+        $this->object->addExtension(new Extension\CommitDeferredExtension);
     }
 
     /**
@@ -216,7 +216,7 @@ class CachePoolTest extends \PHPUnit_Framework_TestCase
      */
     public function testRunExtensions()
     {
-        $this->object->setExtension(
+        $this->object->addExtension(
             new Extension\BypassExtension([
                 'message' => true
             ])
@@ -248,7 +248,7 @@ class CachePoolTest extends \PHPUnit_Framework_TestCase
     {
         $cache = $this->object;
         // test encrypt extension
-        $cache->setExtension(new Extension\EncryptExtension());
+        $cache->addExtension(new Extension\EncryptExtension());
 
         $key = 'testEncrypt';
 
@@ -281,7 +281,7 @@ class CachePoolTest extends \PHPUnit_Framework_TestCase
         $cache = $this->object;
 
         // test TaggableExtension
-        $cache->setExtension(new Extension\TaggableExtension());
+        $cache->addExtension(new Extension\TaggableExtension());
 
         $key = 'taggable';
 

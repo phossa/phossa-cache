@@ -32,7 +32,7 @@ use Phossa\Cache\Message\Message;
  *     ]);
  *
  *     // enable encryption
- *     $cache->setExtension($encrypt);
+ *     $cache->addExtension($encrypt);
  * </code>
  *
  * @package Phossa\Cache
