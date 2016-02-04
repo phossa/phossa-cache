@@ -87,17 +87,27 @@ class CompositeDriver extends DriverAbstract
         // set configs
         parent::__construct($configs);
 
-        // front driver
+        // front driver, may use fallback
         if ($frontDriver->ping()) {
             $this->front = $frontDriver;
         } else {
+            // set error
+            $this->setError(
+                $frontDriver->getError(),
+                $frontDriver->getErrorCode()
+            );
             $this->front = $frontDriver->getFallback();
         }
 
-        // back driver
+        // back driver, may use fallback
         if ($backDriver->ping()) {
             $this->back  = $backDriver;
         } else {
+            // set error
+            $this->setError(
+                $backDriver->getError(),
+                $backDriver->getErrorCode()
+            );
             $this->back  = $backDriver->getFallback();
         }
 
@@ -108,76 +118,97 @@ class CompositeDriver extends DriverAbstract
     }
 
     /**
+     * Either end get ok is ok
+     * 
      * {@inheritDoc}
      */
     public function get(/*# string */ $key)/*# : string */
     {
         // try front-end cache first
-        if ($this->front->has($key)) return $this->front->get($key);
+        if ($this->frontHas($key)) return $this->front->get($key);
 
         // get from backend cache
         return $this->back->get($key);
     }
 
     /**
+     * Test front-end has
+     *
+     * @param  string $key the item key
+     * @return int
+     * @access public
+     * @api
+     */
+    public function frontHas(/*# string */ $key)/*# : int */
+    {
+        return $this->front->has($key);
+    }
+
+    /**
+     * Test backend has
+     *
+     * @param  string $key the item key
+     * @return int
+     * @access public
+     * @api
+     */
+    public function backHas(/*# string */ $key)/*# : int */
+    {
+        return $this->back->has($key);
+    }
+
+    /**
+     * Either end has is ok
+     *
      * {inheritDoc}
      */
     public function has(/*# string */ $key)/*# : int */
     {
         // try front-end cache first
-        $res = $this->front->has($key);
-        if ($res) return $res;
+        if (($res = $this->frontHas($key))) {
+            return $res;
+        }
 
         // try backend cache
-        return $this->back->has($key);
+        return $this->backHas($key);
     }
 
     /**
+     * Need both ends clear ok
+     *
      * {@inheritDoc}
      */
     public function clear()/*# : bool */
     {
-        // clear front-end cache
-        if (!$this->front->clear()) {
-            return $this->falseAndSetError(
-                $this->front->getError(),
-                $this->front->getErrorCode()
-            );
+        $ends = [ $this->front, $this->back ];
+        foreach($ends as $end) {
+            if (!$end->clear()) {
+                return $this->falseAndSetError(
+                    $end->getError(),
+                    $end->getErrorCode()
+                );
+            }
         }
-
-        // clear backend cache
-        if (!$this->back->clear()) {
-            return $this->falseAndSetError(
-                $this->back->getError(),
-                $this->back->getErrorCode()
-            );
-        }
-
-        return true;
+        return $this->trueAndFlushError();
     }
 
     /**
+     * Need both ends delete ok
+     *
      * {@inheritDoc}
      */
     public function delete(/*# string */ $key)/*# : bool */
     {
-        // delete from front-end cache
-        if (!$this->front->delete($key)) {
-            return $this->falseAndSetError(
-                $this->front->getError(),
-                $this->front->getErrorCode()
-            );
+        $ends = [ $this->front, $this->back ];
+        foreach($ends as $end) {
+            if (!$end->delete($key)) {
+                return $this->falseAndSetError(
+                    $end->getError(),
+                    $end->getErrorCode()
+                );
+            }
         }
-
-        // delete from backend cache
-        if (!$this->back->delete($key)) {
-            return $this->falseAndSetError(
-                $this->back->getError(),
-                $this->back->getErrorCode()
-            );
-        }
-
-        return true;
+        return $this->trueAndFlushError();
     }
 
     /**
@@ -185,26 +216,7 @@ class CompositeDriver extends DriverAbstract
      */
     public function save(CacheItemInterface $item)/*# : bool */
     {
-        // write to both ?
-        $both = $this->tester($item);
-
-        // if $both is true, write to front
-        if ($both && !$this->front->save($item)) {
-            return $this->falseAndSetError(
-                $this->front->getError(),
-                $this->front->getErrorCode()
-            );
-        }
-
-        // always write to backend
-        if (!$this->back->save($item)) {
-            return $this->falseAndSetError(
-                $this->back->getError(),
-                $this->back->getErrorCode()
-            );
-        }
-
-        return true;
+        return $this->protectedSave($item, 'save');
     }
 
     /**
@@ -212,81 +224,105 @@ class CompositeDriver extends DriverAbstract
      */
     public function saveDeferred(CacheItemInterface $item)/*# : bool */
     {
-        // write to both ?
-        $both = $this->tester($item);
-
-        // if $both is true, write to front also
-        if ($both && !$this->front->saveDeferred($item)) {
-            return $this->falseAndSetError(
-                $this->front->getError(),
-                $this->front->getErrorCode()
-            );
-        }
-
-        // always write to backend
-        if (!$this->back->saveDeferred($item)) {
-            return $this->falseAndSetError(
-                $this->back->getError(),
-                $this->back->getErrorCode()
-            );
-        }
-
-        return true;
+        return $this->protectedSave($item, 'saveDeferred');
     }
 
     /**
+     * One end commit ok is ok
+     *
      * {@inheritDoc}
      */
     public function commit()/*# : bool */
     {
-        // commit to front-end cache
-        if (!$this->front->commit()) {
-            return $this->falseAndSetError(
-                $this->front->getError(),
-                $this->front->getErrorCode()
-            );
+        $ends = [ $this->front, $this->back ];
+        $res  = false;
+
+        foreach($ends as $end) {
+            // commit failed, set error
+            if (!$end->commit()) {
+                $this->setError(
+                    $end->getError(),
+                    $end->getErrorCode()
+                );
+
+            // one commit is ok, then all ok
+            } else {
+                $res = true;
+            }
         }
 
-        // commit to backend cache
-        if (!$this->back->commit()) {
-            return $this->falseAndSetError(
-                $this->back->getError(),
-                $this->back->getErrorCode()
-            );
-        }
-
-        return true;
+        return $res;
     }
 
     /**
+     * Need both ends purge ok
+     *
      * {@inheritDoc}
      */
     public function purge(/*# int */ $maxlife)/*# : bool */
     {
-        // purge front-end cache
-        if (!$this->front->purge($maxlife)) {
-            return $this->falseAndSetError(
-                $this->front->getError(),
-                $this->front->getErrorCode()
-            );
+        $ends = [ $this->front, $this->back ];
+        foreach($ends as $end) {
+            if (!$end->purge($maxlife)) {
+                return $this->falseAndSetError(
+                    $end->getError(),
+                    $end->getErrorCode()
+                );
+            }
+        }
+        return $this->trueAndFlushError();
+    }
+
+    /**
+     * One end ping ok is ok
+     *
+     * {@inheritDoc}
+     */
+    public function ping()/*# : bool */
+    {
+        return $this->front->ping() || $this->back->ping();
+    }
+
+    /**
+     * local save method, one end save ok is ok
+     *
+     * @param  CacheItemInterface $item
+     * @param  string $function save or saveDeferred
+     * @return bool
+     * @access protected
+     */
+    protected function protectedSave(
+        CacheItemInterface $item,
+        $function = 'save'
+    )/*# : bool */ {
+        // write to both ?
+        $func = $this->tester;
+        $both = $func($item);
+
+        // if $both is true, write to front
+        $res1 = false;
+        if ($both) {
+            if ($this->front->$function($item)) {
+                $res1 = true; // ok
+            } else {
+                $this->setError(
+                    $this->front->getError(),
+                    $this->front->getErrorCode()
+                );
+            }
         }
 
-        // purge backend cache
-        if (!$this->back->purge($maxlife)) {
-            return $this->falseAndSetError(
+        // always write to backend
+        $res2 = false;
+        if ($this->back->$function($item)) {
+            $res2 = true; // ok
+        } else {
+            $this->setError(
                 $this->back->getError(),
                 $this->back->getErrorCode()
             );
         }
 
-        return true;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function ping()/*# : bool */
-    {
-        return $this->front->ping() && $this->back->ping();
+        return $res1 || $res2 ? true : false;
     }
 }

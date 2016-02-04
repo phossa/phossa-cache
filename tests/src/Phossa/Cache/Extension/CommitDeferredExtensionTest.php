@@ -17,7 +17,9 @@ class CommitDeferredExtensionTest extends \PHPUnit_Framework_TestCase
      */
     protected function setUp()
     {
-        $this->object = new CommitDeferredExtension;
+        $this->object = new CommitDeferredExtension([
+            'probability' => 1000
+        ]);
 
         // cache
         $this->cache  = new \Phossa\Cache\CachePool();
@@ -49,6 +51,9 @@ class CommitDeferredExtensionTest extends \PHPUnit_Framework_TestCase
     {
         // always true
         $ext = $this->object;
+
+        // always true
+        $this->setExpectedException('PHPUnit_Framework_Error_Notice');
         $this->assertTrue($ext(
             $this->cache,
             ExtensionStage::STAGE_POST_DEFER

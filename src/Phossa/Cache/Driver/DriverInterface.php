@@ -134,9 +134,9 @@ interface DriverInterface extends ErrorAwareInterface
      * Set the fallback driver
      *
      * @param  DriverInterface $driver the fallback driver
-     * @return void
+     * @return bool
      * @access public
      * @api
      */
-    public function setFallback(DriverInterface $driver);
+    public function setFallback(DriverInterface $driver)/*# : bool */;
 }

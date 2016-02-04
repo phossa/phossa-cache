@@ -15,6 +15,8 @@
 
 namespace Phossa\Cache\Driver;
 
+use Phossa\Cache\Message\Message;
+
 /**
  * Abstract driver class implementing DriverInterface
  *
@@ -56,17 +58,37 @@ abstract class DriverAbstract implements DriverInterface
      */
     public function getFallback()/*# : DriverInterface */
     {
-        if (is_null($this->fallback) || !$this->fallback->ping()) {
+        if (is_null($this->fallback)) {
+            return new NullDriver();
+        }
+
+        if (!$this->fallback->ping()) {
+            // set error
+            $this->setError(
+                $this->fallback->getError(),
+                $this->fallback->getErrorCode()
+            );
+
+            // reset to NullDriver
             $this->fallback = new NullDriver();
         }
+
         return $this->fallback;
     }
 
     /**
      * {@inheritDoc}
      */
-    public function setFallback(DriverInterface $driver)
+    public function setFallback(DriverInterface $driver)/*# : bool */
     {
-        $this->fallback = $driver;
+        if ($driver->ping()) {
+            $this->fallback = $driver;
+            return $this->trueAndFlushError();
+        } else {
+            return $this->falseAndSetError(
+                $driver->getError(),
+                $driver->getErrorCode()
+            );
+        }
     }
 }

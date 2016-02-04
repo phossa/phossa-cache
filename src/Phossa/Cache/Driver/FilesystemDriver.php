@@ -103,7 +103,7 @@ class FilesystemDriver extends DriverAbstract
         // set error to trigger fallback driver
         if (!is_dir($this->dir_root) && !@mkdir($this->dir_root, 0777, true)) {
             // set error
-            $this->falseAndSetError(
+            $this->setError(
                 Message::get(Message::CACHE_FAIL_MKDIR, $this->dir_root),
                 Message::CACHE_FAIL_MKDIR
             );
@@ -229,7 +229,14 @@ class FilesystemDriver extends DriverAbstract
      */
     public function ping()/*# : bool */
     {
-        return is_dir($this->dir_root) && is_writeable($this->dir_root);
+        if (is_dir($this->dir_root) && is_writeable($this->dir_root)) {
+            return true;
+        } else {
+            return $this->falseAndSetError(
+                Message::get(Message::CACHE_FAIL_DRIVER, get_class($this)),
+                Message::CACHE_FAIL_DRIVER
+            );
+        }
     }
 
     /**

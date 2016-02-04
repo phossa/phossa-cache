@@ -96,4 +96,20 @@ class NullDriverTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertEquals(true, $this->object->purge(86400));
     }
+
+    /**
+     * @covers Phossa\Cache\Driver\NullDriver::ping()
+     */
+    public function testPing()
+    {
+        $this->assertTrue($this->object->ping());
+    }
+
+    /**
+     * @covers Phossa\Cache\Driver\NullDriver::getFallback()
+     */
+    public function testGetFallback()
+    {
+        $this->assertTrue($this->object->getFallback() instanceof NullDriver);
+    }
 }
