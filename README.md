@@ -86,7 +86,7 @@ Features
 
     The blackhole driver. used as fallback driver for all other drivers.
 
-  - **Fallback drivers**
+  - **Fallback driver**
 
     User may configure a fallback driver if the desired driver is not ready.
     The `NullDriver` is the final fallback for all other drivers.
@@ -196,6 +196,8 @@ Features
 - Support PHP 5.4+, PHP 7.0, HHVM.
 
 - PHP7 ready for return type declarations and argument type declarations.
+
+- PSR-1, PSR-2, PSR-3, PSR-4, PSR-6 compliant.
 
 Usage
 --
