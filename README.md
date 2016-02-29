@@ -7,7 +7,7 @@
 Introduction
 ---
 
-Phossa-cache is a PSR-6 compliant caching package. It supports various drivers
+Phossa-cache is a PSR-6 compliant caching library. It supports various drivers
 and useful features like bypass, encrypt, stampede protection, garbage collect,
 taggable item etc.
 

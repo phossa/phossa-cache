@@ -3,7 +3,7 @@
     "version": "1.0.8",
     "license": "MIT",
     "type": "library",
-    "description": "The PSR-6 compliant PHP caching system.",
+    "description": "The PSR-6 compliant PHP caching library.",
     "keywords": ["phossa", "cache", "caching" , "psr-6"],
     "homepage": "https://github.com/phossa/phossa-cache",
     "authors": [
