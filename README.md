@@ -269,11 +269,6 @@ Usage
     $cache->deleteItem('mydomain/host1/');
     ```
 
-Version
----
-
-1.0.8
-
 Dependencies
 ---
 
