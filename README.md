@@ -36,8 +36,8 @@ or add the following lines to your `composer.json`
 Features
 ---
 
-- Fully PSR-6 compliant. Maybe the best PSR-6 caching package you will find
-  at github at this time.
+- Fully PSR-6 compliant. Maybe the most feature-rich PSR-6 caching package you
+  will find at github at this time.
 
 - Support all serializable PHP datatypes.
 
@@ -275,7 +275,6 @@ Dependencies
 - PHP >= 5.4.0
 - phossa/phossa-shared 1.0.6
 - psr/cache 1.*
-- psr/log 1.*
 
 License
 ---

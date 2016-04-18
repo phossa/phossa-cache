@@ -1,5 +1,11 @@
 # vendor dir
 /vendor
 
+# zend studio
+/.settings
+/.project
+/.buildpath
+/.externalToolBuilders
+
 # composer stuff
 composer.lock

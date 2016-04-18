@@ -169,7 +169,8 @@ class CompositeDriver extends DriverAbstract
     public function has(/*# string */ $key)/*# : int */
     {
         // try front-end cache first
-        if (($res = $this->frontHas($key))) {
+        $res = $this->frontHas($key);
+        if ($res) {
             return $res;
         }
 

@@ -53,7 +53,7 @@ class CommitDeferredExtensionTest extends \PHPUnit_Framework_TestCase
         $ext = $this->object;
 
         // always true
-        $this->setExpectedException('PHPUnit_Framework_Error_Notice');
+        $this->setExpectedException('PHPUnit_Framework_Error');
         $this->assertTrue($ext(
             $this->cache,
             ExtensionStage::STAGE_POST_DEFER

@@ -13,6 +13,8 @@
  */
 /*# declare(strict_types=1); */
 
+namespace Phossa\Cache\Message;
+
 /**
  * Chinese zh_CN translation for Phossa\Cache\Message\Message
  *
