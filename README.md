@@ -1,8 +1,8 @@
 # phossa-cache
-[![Build Status](https://travis-ci.org/phossa/phossa-cache.svg?branch=master)](https://travis-ci.org/phossa/phossa-cache.svg?branch=master)
-[![HHVM Status](http://hhvm.h4cc.de/badge/phossa/phossa-cache.svg)](http://hhvm.h4cc.de/package/phossa/phossa-cache)
-[![Latest Stable Version](https://poser.pugx.org/phossa/phossa-cache/v/stable)](https://packagist.org/packages/phossa/phossa-cache)
-[![License](https://poser.pugx.org/phossa/phossa-cache/license)](https://packagist.org/packages/phossa/phossa-cache)
+[![Build Status](https://travis-ci.org/phossa/phossa-cache.svg?branch=master)](https://travis-ci.org/phossa/phossa-cache)
+[![HHVM](https://img.shields.io/hhvm/phossa/phossa-cache.svg?style=flat)](http://hhvm.h4cc.de/package/phossa/phossa-cache)
+[![Latest Stable Version](https://img.shields.io/packagist/vpre/phossa/phossa-cache.svg?style=flat)](https://packagist.org/packages/phossa/phossa-cache)
+[![License](https://poser.pugx.org/phossa/phossa-cache/license)](http://mit-license.org/)
 
 Introduction
 ---
