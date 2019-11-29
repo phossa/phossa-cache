@@ -1,9 +1,10 @@
-# phossa-cache
+# phossa-cache [ABANDONED]
 [![Build Status](https://travis-ci.org/phossa/phossa-cache.svg?branch=master)](https://travis-ci.org/phossa/phossa-cache)
 [![HHVM](https://img.shields.io/hhvm/phossa/phossa-cache.svg?style=flat)](http://hhvm.h4cc.de/package/phossa/phossa-cache)
 [![Latest Stable Version](https://img.shields.io/packagist/vpre/phossa/phossa-cache.svg?style=flat)](https://packagist.org/packages/phossa/phossa-cache)
 [![License](https://poser.pugx.org/phossa/phossa-cache/license)](http://mit-license.org/)
 
+**See new lib at [phoole/cache](https://github.com/phoole/cache)**
 Introduction
 ---
 
